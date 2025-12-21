@@ -351,7 +351,7 @@
       }
       .tip {
         position: absolute;
-        z-index: 20;
+        z-index: 9999;
         inset: auto auto calc(100% + 10px) 0;
         width: min(320px, calc(100vw - 40px));
         padding: 10px 12px;
@@ -381,6 +381,16 @@
         opacity: 1;
         transform: translateY(0);
         pointer-events: auto;
+      }
+      /* Keep tooltips inside viewport: JS toggles these classes */
+      .tipWrap.posBottom .tip {
+        inset: calc(100% + 10px) auto auto 0;
+      }
+      .tipWrap.alignRight .tip {
+        inset: auto 0 calc(100% + 10px) auto;
+      }
+      .tipWrap.posBottom.alignRight .tip {
+        inset: calc(100% + 10px) 0 auto auto;
       }
       .tip strong {
         font-weight: 650;
@@ -1616,9 +1626,27 @@
           });
 
           // Tooltips: make them work on touch devices
+          const positionTip = (wrap) => {
+            const tip = wrap?.querySelector?.(".tip");
+            if (!tip) return;
+
+            // Reset then measure.
+            wrap.classList.remove("posBottom", "alignRight");
+            const r = tip.getBoundingClientRect();
+            const pad = 8;
+
+            // If it goes off the top, show below.
+            if (r.top < pad) wrap.classList.add("posBottom");
+            // If it goes off the right edge, align right.
+            const r2 = tip.getBoundingClientRect();
+            if (r2.right > window.innerWidth - pad) wrap.classList.add("alignRight");
+            // If it's still offscreen left, align left (default) and rely on width constraint.
+          };
+
           const closeAllTips = () => {
             document.querySelectorAll(".tipWrap.open").forEach((w) => {
               w.classList.remove("open");
+              w.classList.remove("posBottom", "alignRight");
               const b = w.querySelector(".tipBtn");
               if (b) b.setAttribute("aria-expanded", "false");
             });
@@ -1634,6 +1662,10 @@
               closeAllTips();
               wrap.classList.toggle("open", !isOpen);
               btn.setAttribute("aria-expanded", (!isOpen).toString());
+              if (!isOpen) {
+                // Measure after it becomes visible.
+                requestAnimationFrame(() => positionTip(wrap));
+              }
               return;
             }
             // Click inside an already-open tooltip shouldn't close it immediately.
@@ -1644,6 +1676,7 @@
             if (e.key === "Escape") closeAllTips();
           });
           window.addEventListener("scroll", closeAllTips, { passive: true });
+          window.addEventListener("resize", closeAllTips, { passive: true });
 
           // If the user types a custom Zusatzbeitrag, keep it across model switches.
           els.zusatz.addEventListener("input", () => {
