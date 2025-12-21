@@ -181,7 +181,8 @@
         border-radius: var(--radius);
         box-shadow: var(--shadow);
         backdrop-filter: blur(10px);
-        overflow: clip;
+        /* Tooltips need to escape the card bounds (mobile especially). */
+        overflow: visible;
       }
       .card .head {
         padding: 16px 16px 10px;
@@ -350,7 +351,7 @@
       }
       .tip {
         position: absolute;
-        z-index: 20;
+        z-index: 9999;
         inset: auto auto calc(100% + 10px) 0;
         width: min(320px, calc(100vw - 40px));
         padding: 10px 12px;
@@ -365,15 +366,32 @@
         transform: translateY(6px);
         pointer-events: none;
         transition: opacity 150ms ease, transform 150ms ease;
+        max-height: min(260px, calc(100vh - 140px));
+        overflow: auto;
       }
       :root[data-theme="light"] .tip {
-        background: rgba(15, 23, 42, 0.94);
+        /* Higher contrast in light theme */
+        background: rgba(255, 255, 255, 0.98);
+        color: rgba(15, 23, 42, 0.92);
+        border: 1px solid rgba(15, 23, 42, 0.14);
+        box-shadow: 0 22px 70px rgba(2, 6, 23, 0.18);
       }
       .tipWrap:hover .tip,
       .tipWrap:focus-within .tip {
         opacity: 1;
         transform: translateY(0);
         pointer-events: auto;
+      }
+      /* Mobile-friendly: allow tap-to-toggle via JS */
+      .tipWrap.open .tip {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      /* When opened on mobile, we place the tip as fixed-position and clamp to viewport */
+      .tipWrap.fixedTip .tip {
+        position: fixed;
+        inset: auto;
       }
       .tip strong {
         font-weight: 650;
@@ -522,6 +540,99 @@
           "Liberation Mono", "Courier New", monospace;
         font-size: 12px;
       }
+      .stack {
+        display: grid;
+        gap: 16px;
+        margin-top: 16px;
+      }
+      .prose {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .prose p {
+        margin: 0 0 10px;
+      }
+      .prose p:last-child {
+        margin-bottom: 0;
+      }
+      details.faq {
+        border: 1px solid var(--border);
+        background: var(--panel2);
+        border-radius: 14px;
+        overflow: clip;
+      }
+      details.faq + details.faq {
+        margin-top: 10px;
+      }
+      details.faq summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 12px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        user-select: none;
+      }
+      details.faq summary::-webkit-details-marker {
+        display: none;
+      }
+      details.faq summary .q {
+        color: var(--text);
+        font-weight: 650;
+        font-size: 13px;
+      }
+      details.faq summary .chev {
+        flex: 0 0 auto;
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.06);
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+        transition: transform 150ms ease;
+      }
+      :root[data-theme="light"] details.faq summary .chev {
+        background: rgba(15, 23, 42, 0.06);
+      }
+      details.faq[open] summary .chev {
+        transform: rotate(180deg);
+      }
+      details.faq .a {
+        padding: 0 12px 12px;
+        border-top: 1px solid var(--border);
+      }
+      .kvTable {
+        display: grid;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .kvTable .row2 {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        padding: 10px 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      :root[data-theme="light"] .kvTable .row2 {
+        border: 1px solid rgba(15, 23, 42, 0.12);
+        background: rgba(15, 23, 42, 0.04);
+      }
+      .kvTable .row2 .k {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .kvTable .row2 .v {
+        font-variant-numeric: tabular-nums;
+        font-size: 13px;
+        color: var(--text);
+        font-weight: 650;
+      }
       .srOnly {
         position: absolute;
         width: 1px;
@@ -635,12 +746,15 @@
                         Uses a simplified German income tax function (zones +
                         top rates). Values can differ from official withholding
                         due to many real-world factors (allowances, bonuses,
-                        exact insurance settings, etc.).
+                        exact insurance settings, etc.). The <strong>2026</strong>
+                        model mainly updates <strong>social insurance inputs</strong>
+                        (BBG + PV rates) based on the provided 2026 figures.
                       </span>
                     </span>
                   </span>
                   <select id="year">
-                    <option value="2025" selected>2025 (approx)</option>
+                    <option value="2026" selected>2026 (approx: social rates)</option>
+                    <option value="2025">2025 (approx)</option>
                     <option value="2024">2024 (approx)</option>
                   </select>
                 </label>
@@ -700,10 +814,12 @@
                         ?
                       </button>
                       <span class="tip" role="tooltip">
-                        We use children only for the
-                        <strong>childless care surcharge</strong> (typically
-                        applied when you have 0 children). Child-related tax
-                        rules are more complex and not fully modeled here.
+                        In the <strong>2026</strong> model, the employee care
+                        insurance rate (PV) depends on the number of children.
+                        In older models, we mainly apply the
+                        <strong>childless surcharge</strong> when you have 0
+                        children. Child-related <strong>tax</strong> rules are
+                        more complex and not fully modeled here.
                       </span>
                     </span>
                   </span>
@@ -813,12 +929,14 @@
                       <span class="tip" role="tooltip">
                         In statutory health insurance, employees typically pay
                         <strong>half</strong> of the “Zusatzbeitrag”. Enter the
-                        full percentage (e.g. 1.7) and we’ll apply half to the
-                        employee share.
+                        full percentage (e.g. 2.9) and we’ll apply half to the
+                        employee share. (For 2026, the average Zusatzbeitrag is
+                        often cited around <strong>2.9%</strong> — your actual
+                        value depends on your insurer.)
                       </span>
                     </span>
                   </span>
-                  <input id="zusatz" inputmode="decimal" value="1.7" />
+                  <input id="zusatz" inputmode="decimal" value="2.9" />
                 </label>
                 <label>
                   <span class="labelLine">
@@ -880,6 +998,134 @@
         </aside>
       </div>
 
+      <section class="card stack" aria-label="German notes (2026)">
+        <div class="head">
+          <h2>Info (Deutsch) – Hinweise &amp; Werte</h2>
+          <p class="meta">Praktische Erklärungen (2026) • kompakt • mobilfreundlich</p>
+        </div>
+        <div class="body prose">
+          <details class="faq">
+            <summary>
+              <span class="q">Mehrere Arbeitgeber / Steuerklasse VI</span>
+              <span class="chev" aria-hidden="true">▾</span>
+            </summary>
+            <div class="a">
+              <p>
+                Steuerklasse <strong>VI</strong> gilt häufig, wenn Sie
+                <strong>mehrere Einkommen</strong> beziehen und mindestens ein
+                weiteres Arbeitsverhältnis über der aktuellen
+                <strong>Minijob‑Verdienstgrenze</strong> liegt (z.&nbsp;B. &gt;
+                603&nbsp;€).
+              </p>
+              <p>
+                Ihre <strong>Lohnsteuerklasse</strong> sehen Sie in der
+                Gehaltsabrechnung. Der Arbeitgeber ruft die elektronischen
+                Lohnsteuerabzugsmerkmale (<strong>ELStAM</strong>) über Ihre
+                Steuer‑ID beim Finanzamt ab.
+              </p>
+            </div>
+          </details>
+
+          <details class="faq">
+            <summary>
+              <span class="q">Krankenversicherung (KV) &amp; Zusatzbeitrag</span>
+              <span class="chev" aria-hidden="true">▾</span>
+            </summary>
+            <div class="a">
+              <p>
+                Die angegebenen KV‑Sätze können Arbeitnehmer‑ und Arbeitgeberanteil
+                beinhalten. Der <strong>Zusatzbeitrag</strong> hängt von Ihrer
+                Krankenkasse ab. Seit 2019 tragen Arbeitgeber und Arbeitnehmer den
+                Zusatzbeitrag grundsätzlich je zur Hälfte.
+              </p>
+              <p>
+                In diesem Rechner wird für die KV‑Berechnung die
+                <strong>Arbeitnehmerhälfte</strong> des eingegebenen
+                Zusatzbeitrags verwendet.
+              </p>
+            </div>
+          </details>
+
+          <details class="faq">
+            <summary>
+              <span class="q">Beitragsbemessungsgrenzen (BBG) 2026</span>
+              <span class="chev" aria-hidden="true">▾</span>
+            </summary>
+            <div class="a">
+              <p>
+                Bis zur Beitragsbemessungsgrenze werden Beiträge zur gesetzlichen
+                Sozialversicherung prozentual erhoben.
+              </p>
+              <div class="kvTable" aria-label="BBG 2026 summary">
+                <div class="row2">
+                  <div class="k">Kranken- &amp; Pflegeversicherung (monatlich)</div>
+                  <div class="v">5.812,50 €</div>
+                </div>
+                <div class="row2">
+                  <div class="k">Kranken- &amp; Pflegeversicherung (jährlich)</div>
+                  <div class="v">69.750 €</div>
+                </div>
+                <div class="row2">
+                  <div class="k">Renten- &amp; Arbeitslosenversicherung (monatlich)</div>
+                  <div class="v">8.450 €</div>
+                </div>
+                <div class="row2">
+                  <div class="k">Renten- &amp; Arbeitslosenversicherung (jährlich)</div>
+                  <div class="v">101.400 €</div>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <details class="faq">
+            <summary>
+              <span class="q">Versicherungspflichtgrenze (PKV) 2026</span>
+              <span class="chev" aria-hidden="true">▾</span>
+            </summary>
+            <div class="a">
+              <p>
+                Ab der Versicherungspflichtgrenze kann ein Arbeitnehmer unter
+                bestimmten Voraussetzungen aus der GKV austreten und in eine
+                <strong>private Krankenversicherung</strong> (PKV) wechseln.
+                Häufig muss das Einkommen die Grenze <strong>drei Jahre in
+                Folge</strong> überschreiten (Details je nach Situation).
+              </p>
+              <p>
+                Für 2026 beträgt die Versicherungspflichtgrenze
+                <strong>77.400 €</strong> pro Jahr.
+              </p>
+            </div>
+          </details>
+
+          <details class="faq">
+            <summary>
+              <span class="q">Pflegeversicherung (PV) – Arbeitnehmeranteil</span>
+              <span class="chev" aria-hidden="true">▾</span>
+            </summary>
+            <div class="a">
+              <p>
+                Seit 01.07.2023 beträgt der Beitrag zur Pflegeversicherung insgesamt
+                3,4%. Zusätzlich richtet sich der Arbeitnehmer‑Anteil (außer Sachsen)
+                nach der Anzahl der Kinder.
+              </p>
+              <div class="kvTable" aria-label="PV employee rates">
+                <div class="row2"><div class="k">Keine Kinder</div><div class="v">2,3%</div></div>
+                <div class="row2"><div class="k">1 Kind</div><div class="v">1,7%</div></div>
+                <div class="row2"><div class="k">2 Kinder</div><div class="v">1,45%</div></div>
+                <div class="row2"><div class="k">3 Kinder</div><div class="v">1,2%</div></div>
+                <div class="row2"><div class="k">4 Kinder</div><div class="v">0,95%</div></div>
+                <div class="row2"><div class="k">5+ Kinder</div><div class="v">0,7%</div></div>
+              </div>
+              <p>
+                Hinweis: In <strong>Sachsen</strong> gilt eine besondere Aufteilung,
+                daher kann der Arbeitnehmeranteil abweichen. Dieser Rechner nähert
+                Sachsen vereinfacht an.
+              </p>
+            </div>
+          </details>
+        </div>
+      </section>
+
       <footer>
         <div class="note">
           This is a <strong>fast estimate</strong> (not payroll software). If you
@@ -924,6 +1170,46 @@
 
         // "Approx" model numbers. Intent: solid UX and clear estimates, not legal accuracy.
         const MODELS = {
+          2026: {
+            label: "2026 (approx: social rates)",
+            // Tax function kept aligned with the 2025 "approx" model (we mainly adjust social parameters here).
+            tax: {
+              grundfreibetrag: 12096,
+              zone1_end: 18600,
+              zone2_end: 69000,
+              zone3_end: 277825,
+              z1: { a: 980.14, b: 1400, base: 0, offset: 12096 },
+              z2: { a: 216.16, b: 2397, base: 1025.38, offset: 18600 },
+              z3: { rate: 0.42, sub: 11000 },
+              z4: { rate: 0.45, sub: 19300 },
+              soli_exempt_tax: 18130,
+            },
+            allowances: {
+              werbungskosten: 1230,
+              sonderausgaben: 36,
+              entlastungsbetrag_II: 4260,
+            },
+            social: {
+              // BBG 2026 (as provided in the German notes)
+              bbg_health_month: 5812.5,
+              bbg_pension_month: 8450,
+              rv_employee: 0.093,
+              av_employee: 0.013,
+              kv_employee_base: 0.073, // plus half zusatzbeitrag
+              // PV employee rates (except Sachsen) depend on #children
+              pv_employee: 0.017,
+              pv_employee_saxony: 0.022,
+              pv_childless_surcharge: 0.006, // used only for Sachsen fallback here
+              pv_employee_table: {
+                0: 0.023,
+                1: 0.017,
+                2: 0.0145,
+                3: 0.012,
+                4: 0.0095,
+                5: 0.007,
+              },
+            },
+          },
           2025: {
             label: "2025 (approx)",
             // Wage tax / income tax model (roughly in line with recent BMF zone functions).
@@ -1014,6 +1300,9 @@
           shareBtn: $("shareBtn"),
           resetBtn: $("resetBtn"),
         };
+
+        // Track if the user intentionally set a value (so model switches don't overwrite it).
+        let userTouchedZusatz = false;
 
         function clamp(n, min, max) {
           return Math.min(max, Math.max(min, n));
@@ -1106,12 +1395,18 @@
           const baseRV = Math.min(grossMonthly, s.bbg_pension_month);
 
           const kvRateEmployee = s.kv_employee_base + zusatzPct / 2;
-          const pvRateBase =
-            state === "Sachsen" ? s.pv_employee_saxony : s.pv_employee;
-          const pvSurcharge = children === 0 ? s.pv_childless_surcharge : 0;
+          let pvRateEmployee = 0;
+          if (s.pv_employee_table && state !== "Sachsen") {
+            const k = Math.min(5, children);
+            pvRateEmployee = s.pv_employee_table[k] ?? s.pv_employee;
+          } else {
+            const pvBase = state === "Sachsen" ? s.pv_employee_saxony : s.pv_employee;
+            const pvSurcharge = children === 0 ? s.pv_childless_surcharge : 0;
+            pvRateEmployee = pvBase + pvSurcharge;
+          }
 
           let kv = baseKV * kvRateEmployee;
-          let pv = baseKV * (pvRateBase + pvSurcharge);
+          let pv = baseKV * pvRateEmployee;
           const rv = baseRV * s.rv_employee;
           const av = baseRV * s.av_employee;
 
@@ -1273,11 +1568,14 @@
           const p = new URLSearchParams(location.search);
           if (p.has("gross")) els.gross.value = String(p.get("gross") || "");
           if (p.has("period")) els.period.value = p.get("period") || "year";
-          if (p.has("year")) els.year.value = p.get("year") || "2025";
+          if (p.has("year")) els.year.value = p.get("year") || "2026";
           if (p.has("taxClass")) els.taxClass.value = p.get("taxClass") || "1";
           if (p.has("state")) els.state.value = p.get("state") || STATES[0];
           if (p.has("children")) els.children.value = String(p.get("children") || "0");
-          if (p.has("zusatz")) els.zusatz.value = String(p.get("zusatz") || "1.7");
+          if (p.has("zusatz")) {
+            els.zusatz.value = String(p.get("zusatz") || "2.9");
+            userTouchedZusatz = true;
+          }
           if (p.has("church")) setSwitch(els.churchTax, p.get("church") === "1");
           if (p.has("pkv")) setSwitch(els.isPrivate, p.get("pkv") === "1");
           if (p.has("pkvPremium")) els.pkvPremium.value = String(p.get("pkvPremium") || "450");
@@ -1328,15 +1626,107 @@
             $("calcForm").addEventListener(evt, () => render());
           });
 
+          // Tooltips: make them work on touch devices
+          const positionTip = (wrap) => {
+            const tip = wrap?.querySelector?.(".tip");
+            const btn = wrap?.querySelector?.(".tipBtn");
+            if (!tip) return;
+            if (!btn) return;
+
+            // Place tooltip within viewport (top/bottom + left/right clamped).
+            wrap.classList.add("fixedTip");
+            tip.style.left = "";
+            tip.style.top = "";
+
+            const pad = 10;
+            const gap = 10;
+            const b = btn.getBoundingClientRect();
+            const tr = tip.getBoundingClientRect();
+
+            const maxLeft = Math.max(pad, window.innerWidth - pad - tr.width);
+            let left = b.left + b.width / 2 - tr.width / 2;
+            left = Math.min(maxLeft, Math.max(pad, left));
+
+            // Prefer above, otherwise below; then clamp.
+            const aboveTop = b.top - gap - tr.height;
+            const belowTop = b.bottom + gap;
+            let top = aboveTop;
+            if (aboveTop < pad) top = belowTop;
+            if (top + tr.height > window.innerHeight - pad) {
+              // If below overflows, try above; otherwise clamp to top padding.
+              if (aboveTop >= pad) top = aboveTop;
+              top = Math.min(window.innerHeight - pad - tr.height, Math.max(pad, top));
+            }
+
+            tip.style.left = `${left}px`;
+            tip.style.top = `${top}px`;
+          };
+
+          const closeAllTips = () => {
+            document.querySelectorAll(".tipWrap.open").forEach((w) => {
+              w.classList.remove("open");
+              w.classList.remove("fixedTip");
+              const b = w.querySelector(".tipBtn");
+              if (b) b.setAttribute("aria-expanded", "false");
+              const tip = w.querySelector(".tip");
+              if (tip) {
+                tip.style.left = "";
+                tip.style.top = "";
+              }
+            });
+          };
+          document.addEventListener("click", (e) => {
+            const btn = e.target.closest?.(".tipBtn");
+            if (btn) {
+              e.preventDefault();
+              e.stopPropagation();
+              const wrap = btn.closest(".tipWrap");
+              if (!wrap) return;
+              const isOpen = wrap.classList.contains("open");
+              closeAllTips();
+              wrap.classList.toggle("open", !isOpen);
+              btn.setAttribute("aria-expanded", (!isOpen).toString());
+              if (!isOpen) {
+                // Measure after it becomes visible.
+                requestAnimationFrame(() => {
+                  positionTip(wrap);
+                  // Some mobile browsers settle layout after another frame.
+                  requestAnimationFrame(() => positionTip(wrap));
+                });
+              }
+              return;
+            }
+            // Click inside an already-open tooltip shouldn't close it immediately.
+            if (e.target.closest?.(".tipWrap")) return;
+            closeAllTips();
+          });
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") closeAllTips();
+          });
+          window.addEventListener("scroll", closeAllTips, { passive: true });
+          window.addEventListener("resize", closeAllTips, { passive: true });
+
+          // If the user types a custom Zusatzbeitrag, keep it across model switches.
+          els.zusatz.addEventListener("input", () => {
+            userTouchedZusatz = true;
+          });
+          // Convenience: when switching to 2026, set the typical 2.9% if user hasn't chosen a value.
+          els.year.addEventListener("change", () => {
+            if (Number(els.year.value) === 2026 && !userTouchedZusatz) {
+              els.zusatz.value = "2.9";
+            }
+          });
+
           // Buttons
           els.resetBtn.addEventListener("click", () => {
             els.gross.value = "60000";
             els.period.value = "year";
-            els.year.value = "2025";
+            els.year.value = "2026";
             els.taxClass.value = "1";
             els.state.value = "Berlin";
             els.children.value = "0";
-            els.zusatz.value = "1.7";
+            els.zusatz.value = "2.9";
+            userTouchedZusatz = false;
             els.assumptionMode.value = "standard";
             setSwitch(els.churchTax, false);
             setSwitch(els.isPrivate, false);
