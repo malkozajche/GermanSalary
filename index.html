@@ -181,7 +181,8 @@
         border-radius: var(--radius);
         box-shadow: var(--shadow);
         backdrop-filter: blur(10px);
-        overflow: clip;
+        /* Tooltips need to escape the card bounds (mobile especially). */
+        overflow: visible;
       }
       .card .head {
         padding: 16px 16px 10px;
@@ -371,6 +372,12 @@
       }
       .tipWrap:hover .tip,
       .tipWrap:focus-within .tip {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      /* Mobile-friendly: allow tap-to-toggle via JS */
+      .tipWrap.open .tip {
         opacity: 1;
         transform: translateY(0);
         pointer-events: auto;
@@ -1607,6 +1614,36 @@
           ["input", "change"].forEach((evt) => {
             $("calcForm").addEventListener(evt, () => render());
           });
+
+          // Tooltips: make them work on touch devices
+          const closeAllTips = () => {
+            document.querySelectorAll(".tipWrap.open").forEach((w) => {
+              w.classList.remove("open");
+              const b = w.querySelector(".tipBtn");
+              if (b) b.setAttribute("aria-expanded", "false");
+            });
+          };
+          document.addEventListener("click", (e) => {
+            const btn = e.target.closest?.(".tipBtn");
+            if (btn) {
+              e.preventDefault();
+              e.stopPropagation();
+              const wrap = btn.closest(".tipWrap");
+              if (!wrap) return;
+              const isOpen = wrap.classList.contains("open");
+              closeAllTips();
+              wrap.classList.toggle("open", !isOpen);
+              btn.setAttribute("aria-expanded", (!isOpen).toString());
+              return;
+            }
+            // Click inside an already-open tooltip shouldn't close it immediately.
+            if (e.target.closest?.(".tipWrap")) return;
+            closeAllTips();
+          });
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") closeAllTips();
+          });
+          window.addEventListener("scroll", closeAllTips, { passive: true });
 
           // If the user types a custom Zusatzbeitrag, keep it across model switches.
           els.zusatz.addEventListener("input", () => {
