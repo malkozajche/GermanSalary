@@ -737,6 +737,42 @@
               <div class="row">
                 <label>
                   <span class="labelLine">
+                    <strong>Benefit in kind (monthly)</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">?</button>
+                      <span class="tip" role="tooltip">
+                        “Geldwerter Vorteil” (e.g. company car) increases the
+                        <strong>tax</strong> and <strong>social insurance</strong>
+                        bases, but it’s usually <strong>not paid out in cash</strong>.
+                        This calculator treats it as an added monthly gross component
+                        for deductions, and reports both <strong>cash net</strong> and
+                        <strong>net incl. benefit</strong>.
+                      </span>
+                    </span>
+                  </span>
+                  <input id="benefit" inputmode="decimal" placeholder="e.g. 0" value="0" />
+                </label>
+
+                <label>
+                  <span class="labelLine">
+                    <strong>Annual tax allowance (Freibetrag)</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">?</button>
+                      <span class="tip" role="tooltip">
+                        Optional annual payroll allowance (“Steuerfreibetrag”) that
+                        reduces the estimated <strong>taxable income</strong>.
+                        If you have specific allowances (e.g. child allowance),
+                        you can approximate them here.
+                      </span>
+                    </span>
+                  </span>
+                  <input id="allowance" inputmode="decimal" placeholder="e.g. 0" value="0" />
+                </label>
+              </div>
+
+              <div class="row">
+                <label>
+                  <span class="labelLine">
                     <strong>Tax year (estimate model)</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">
@@ -808,22 +844,91 @@
 
                 <label>
                   <span class="labelLine">
-                    <strong>Children (for care insurance)</strong>
+                    <strong>Children under 25 (PV)</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">
                         ?
                       </button>
                       <span class="tip" role="tooltip">
                         In the <strong>2026</strong> model, the employee care
-                        insurance rate (PV) depends on the number of children.
-                        In older models, we mainly apply the
-                        <strong>childless surcharge</strong> when you have 0
-                        children. Child-related <strong>tax</strong> rules are
-                        more complex and not fully modeled here.
+                        insurance rate (PV) depends on the number of children
+                        <strong>under 25</strong>. We also (roughly) waive the
+                        childless surcharge when you’re <strong>under 23</strong>.
                       </span>
                     </span>
                   </span>
-                  <input id="children" inputmode="numeric" value="0" />
+                  <input id="childrenU25" inputmode="numeric" value="0" />
+                </label>
+              </div>
+
+              <div class="row">
+                <label>
+                  <span class="labelLine">
+                    <strong>Your age</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">?</button>
+                      <span class="tip" role="tooltip">
+                        Used only for a small PV nuance: the “childless surcharge”
+                        is typically applied from age <strong>23+</strong>.
+                      </span>
+                    </span>
+                  </span>
+                  <input id="age" inputmode="numeric" value="25" />
+                </label>
+
+                <label>
+                  <span class="labelLine">
+                    <strong>Children (total)</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">?</button>
+                      <span class="tip" role="tooltip">
+                        Currently informational. PV uses “children under 25”.
+                        Child-related <strong>tax</strong> rules are complex and
+                        not fully modeled yet.
+                      </span>
+                    </span>
+                  </span>
+                  <input id="childrenTotal" inputmode="numeric" value="0" />
+                </label>
+              </div>
+
+              <div class="row">
+                <label>
+                  <span class="labelLine">
+                    <strong>Kinderfreibetrag</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">?</button>
+                      <span class="tip" role="tooltip">
+                        Not directly modeled. If you want to approximate the impact,
+                        use the <strong>Annual tax allowance (Freibetrag)</strong>
+                        input above.
+                      </span>
+                    </span>
+                  </span>
+                  <input id="kinderFreibetrag" inputmode="decimal" value="0" />
+                </label>
+
+                <label>
+                  <span class="labelLine">
+                    <strong>Coverage (RV / AV)</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">?</button>
+                      <span class="tip" role="tooltip">
+                        If you are exempt from statutory pension (RV) or unemployment
+                        insurance (AV), you can disable them here.
+                      </span>
+                    </span>
+                  </span>
+                  <div class="row">
+                    <select id="rvMode" aria-label="Rentenversicherung">
+                      <option value="on" selected>RV: statutory</option>
+                      <option value="off">RV: exempt</option>
+                    </select>
+                    <select id="avMode" aria-label="Arbeitslosenversicherung">
+                      <option value="on" selected>AV: statutory</option>
+                      <option value="off">AV: exempt</option>
+                    </select>
+                  </div>
                 </label>
               </div>
 
@@ -978,6 +1083,10 @@
                 <span class="badge">
                   <b id="netAnnual">—</b>
                   <span>/ year net</span>
+                </span>
+                <span class="badge" id="benefitBadge" hidden>
+                  <b id="netMonthlyTotal">—</b>
+                  <span>/ month incl. benefit</span>
                 </span>
               </div>
               <div class="big" id="headline">—</div>
@@ -1277,10 +1386,17 @@
         const els = {
           gross: $("gross"),
           period: $("period"),
+          benefit: $("benefit"),
+          allowance: $("allowance"),
           year: $("year"),
           taxClass: $("taxClass"),
           state: $("state"),
-          children: $("children"),
+          childrenU25: $("childrenU25"),
+          age: $("age"),
+          childrenTotal: $("childrenTotal"),
+          kinderFreibetrag: $("kinderFreibetrag"),
+          rvMode: $("rvMode"),
+          avMode: $("avMode"),
           zusatz: $("zusatz"),
           assumptionMode: $("assumptionMode"),
           churchTax: $("churchTax"),
@@ -1291,6 +1407,8 @@
           themeToggle: $("themeToggle"),
           netMonthly: $("netMonthly"),
           netAnnual: $("netAnnual"),
+          netMonthlyTotal: $("netMonthlyTotal"),
+          benefitBadge: $("benefitBadge"),
           headline: $("headline"),
           subtitle: $("subtitle"),
           breakdown: $("breakdown"),
@@ -1377,11 +1495,20 @@
           const model = MODELS[Number(els.year.value)] ?? MODELS[2025];
           const grossInput = parseNum(els.gross.value);
           const period = els.period.value;
-          const grossAnnual = period === "month" ? grossInput * 12 : grossInput;
+          const cashGrossAnnual = period === "month" ? grossInput * 12 : grossInput;
+          const cashGrossMonthly = cashGrossAnnual / 12;
+          const benefitMonthly = Math.max(0, parseNum(els.benefit.value));
+          const benefitAnnual = benefitMonthly * 12;
+          const grossAnnual = cashGrossAnnual + benefitAnnual;
           const grossMonthly = grossAnnual / 12;
           const taxClass = Number(els.taxClass.value);
           const state = els.state.value;
-          const children = Math.max(0, Math.round(parseNum(els.children.value)));
+          const age = Math.max(0, Math.round(parseNum(els.age.value)));
+          const childrenU25 = Math.max(0, Math.round(parseNum(els.childrenU25.value)));
+          const childrenTotal = Math.max(0, Math.round(parseNum(els.childrenTotal.value)));
+          const annualAllowance = Math.max(0, parseNum(els.allowance.value));
+          const rvOn = els.rvMode.value !== "off";
+          const avOn = els.avMode.value !== "off";
           const zusatzPct = clamp(parseNum(els.zusatz.value) / 100, 0, 0.06);
           const conservative = els.assumptionMode.value === "conservative";
           const churchEnabled = getSwitch(els.churchTax);
@@ -1397,18 +1524,21 @@
           const kvRateEmployee = s.kv_employee_base + zusatzPct / 2;
           let pvRateEmployee = 0;
           if (s.pv_employee_table && state !== "Sachsen") {
-            const k = Math.min(5, children);
+            const k = Math.min(5, childrenU25);
             pvRateEmployee = s.pv_employee_table[k] ?? s.pv_employee;
+            // Rough nuance: childless surcharge typically from age 23+.
+            if (k === 0 && age > 0 && age < 23) pvRateEmployee = s.pv_employee_table[1] ?? 0.017;
           } else {
             const pvBase = state === "Sachsen" ? s.pv_employee_saxony : s.pv_employee;
-            const pvSurcharge = children === 0 ? s.pv_childless_surcharge : 0;
+            const applyChildless = childrenU25 === 0 && (age === 0 || age >= 23);
+            const pvSurcharge = applyChildless ? s.pv_childless_surcharge : 0;
             pvRateEmployee = pvBase + pvSurcharge;
           }
 
           let kv = baseKV * kvRateEmployee;
           let pv = baseKV * pvRateEmployee;
-          const rv = baseRV * s.rv_employee;
-          const av = baseRV * s.av_employee;
+          const rv = rvOn ? baseRV * s.rv_employee : 0;
+          const av = avOn ? baseRV * s.av_employee : 0;
 
           if (isPrivate) {
             kv = Math.max(0, pkvPremiumMonthly);
@@ -1423,6 +1553,7 @@
           let allowancesAnnual = a.werbungskosten + a.sonderausgaben;
           if (taxClass === 2) allowancesAnnual += a.entlastungsbetrag_II;
           if (conservative) allowancesAnnual *= 0.65; // reduce deductions slightly
+          allowancesAnnual += annualAllowance;
 
           const taxableAnnual = Math.max(0, grossAnnual - socialAnnual - allowancesAnnual);
 
@@ -1437,30 +1568,49 @@
           const soliAnnual = solidarityAnnual(taxAnnual, splitFactor, model);
           const churchAnnual = churchEnabled ? taxAnnual * churchRateForState(state) : 0;
 
-          const netAnnual = Math.max(
+          const netAnnualCash = Math.max(
             0,
-            grossAnnual - socialAnnual - taxAnnual - soliAnnual - churchAnnual
+            cashGrossAnnual - socialAnnual - taxAnnual - soliAnnual - churchAnnual
           );
-          const netMonthly = netAnnual / 12;
+          const netAnnualTotal = netAnnualCash + benefitAnnual;
+          const netMonthlyCash = netAnnualCash / 12;
+          const netMonthlyTotal = netAnnualTotal / 12;
 
-          const totalDeductionsAnnual = grossAnnual - netAnnual;
-          const effectiveRate = grossAnnual > 0 ? totalDeductionsAnnual / grossAnnual : 0;
+          const totalDeductionsAnnual = grossAnnual - netAnnualTotal;
+          const effectiveRate = grossAnnual > 0 ? (grossAnnual - netAnnualCash) / grossAnnual : 0;
 
           return {
             model,
             inputs: {
+              cashGrossAnnual,
+              cashGrossMonthly,
+              benefitMonthly,
+              benefitAnnual,
               grossAnnual,
               grossMonthly,
               taxableAnnual,
               taxClass,
               state,
-              children,
+              age,
+              childrenU25,
+              childrenTotal,
+              annualAllowance,
+              rvOn,
+              avOn,
               zusatzPct,
               conservative,
               churchEnabled,
               isPrivate,
             },
-            monthly: { kv, pv, rv, av, social: socialMonthly, net: netMonthly },
+            monthly: {
+              kv,
+              pv,
+              rv,
+              av,
+              social: socialMonthly,
+              netCash: netMonthlyCash,
+              netTotal: netMonthlyTotal,
+            },
             annual: {
               kv: kv * 12,
               pv: pv * 12,
@@ -1470,7 +1620,8 @@
               tax: taxAnnual,
               soli: soliAnnual,
               church: churchAnnual,
-              net: netAnnual,
+              netCash: netAnnualCash,
+              netTotal: netAnnualTotal,
               deductions: totalDeductionsAnnual,
               effectiveRate,
             },
@@ -1502,21 +1653,32 @@
           const r = compute();
           const gA = r.inputs.grossAnnual;
 
-          els.netMonthly.textContent = fmtEUR.format(r.monthly.net);
-          els.netAnnual.textContent = fmtEUR.format(r.annual.net);
+          els.netMonthly.textContent = fmtEUR.format(r.monthly.netCash);
+          els.netAnnual.textContent = fmtEUR.format(r.annual.netCash);
+          els.benefitBadge.hidden = !(r.inputs.benefitAnnual > 0);
+          els.netMonthlyTotal.textContent = fmtEUR.format(r.monthly.netTotal);
 
-          els.headline.textContent = fmtEUR.format(r.monthly.net);
-          els.subtitle.textContent = `${fmtEUR.format(r.inputs.grossMonthly)} gross/month • ${fmtPct.format(
-            1 - r.annual.net / (gA || 1)
-          )} total deductions`;
+          els.headline.textContent = fmtEUR.format(r.monthly.netCash);
+          const benefitNote =
+            r.inputs.benefitAnnual > 0
+              ? ` • incl. ${fmtEUR.format(r.inputs.benefitMonthly)} non-cash benefit/month`
+              : "";
+          els.subtitle.textContent = `${fmtEUR.format(
+            r.inputs.grossMonthly
+          )} gross/month • ${fmtPct.format(1 - r.annual.netCash / (gA || 1))} total deductions${benefitNote}`;
 
           els.resultMeta.textContent = `${r.model.label} • ${r.inputs.state} • class ${["", "I", "II", "III", "IV", "V", "VI"][r.inputs.taxClass]}`;
           els.versionTag.textContent = `model: ${r.model.label}`;
 
           els.breakdown.replaceChildren();
           els.breakdown.appendChild(
-            line("Net pay", r.annual.net, gA, "green")
+            line("Net pay (cash)", r.annual.netCash, gA, "green")
           );
+          if (r.inputs.benefitAnnual > 0) {
+            els.breakdown.appendChild(
+              line("Benefit in kind (non-cash)", r.inputs.benefitAnnual, gA, "green")
+            );
+          }
           els.breakdown.appendChild(
             line("Income tax (ESt) – estimate", r.annual.tax, gA, "amber")
           );
@@ -1547,10 +1709,23 @@
           const params = new URLSearchParams();
           params.set("gross", String(parseNum(els.gross.value)));
           params.set("period", els.period.value);
+          params.set("benefit", String(parseNum(els.benefit.value)));
+          params.set("allowance", String(parseNum(els.allowance.value)));
           params.set("year", els.year.value);
           params.set("taxClass", els.taxClass.value);
           params.set("state", els.state.value);
-          params.set("children", String(Math.max(0, Math.round(parseNum(els.children.value)))));
+          params.set("age", String(Math.max(0, Math.round(parseNum(els.age.value)))));
+          params.set(
+            "childrenU25",
+            String(Math.max(0, Math.round(parseNum(els.childrenU25.value))))
+          );
+          params.set(
+            "childrenTotal",
+            String(Math.max(0, Math.round(parseNum(els.childrenTotal.value))))
+          );
+          params.set("kfb", String(parseNum(els.kinderFreibetrag.value)));
+          params.set("rv", els.rvMode.value);
+          params.set("av", els.avMode.value);
           params.set("zusatz", String(parseNum(els.zusatz.value)));
           params.set("church", getSwitch(els.churchTax) ? "1" : "0");
           params.set("pkv", getSwitch(els.isPrivate) ? "1" : "0");
@@ -1568,10 +1743,18 @@
           const p = new URLSearchParams(location.search);
           if (p.has("gross")) els.gross.value = String(p.get("gross") || "");
           if (p.has("period")) els.period.value = p.get("period") || "month";
+          if (p.has("benefit")) els.benefit.value = String(p.get("benefit") || "0");
+          if (p.has("allowance")) els.allowance.value = String(p.get("allowance") || "0");
           if (p.has("year")) els.year.value = p.get("year") || "2026";
           if (p.has("taxClass")) els.taxClass.value = p.get("taxClass") || "1";
           if (p.has("state")) els.state.value = p.get("state") || STATES[0];
-          if (p.has("children")) els.children.value = String(p.get("children") || "0");
+          if (p.has("age")) els.age.value = String(p.get("age") || "25");
+          if (p.has("childrenU25")) els.childrenU25.value = String(p.get("childrenU25") || "0");
+          if (p.has("childrenTotal"))
+            els.childrenTotal.value = String(p.get("childrenTotal") || "0");
+          if (p.has("kfb")) els.kinderFreibetrag.value = String(p.get("kfb") || "0");
+          if (p.has("rv")) els.rvMode.value = p.get("rv") || "on";
+          if (p.has("av")) els.avMode.value = p.get("av") || "on";
           if (p.has("zusatz")) {
             els.zusatz.value = String(p.get("zusatz") || "2.9");
             userTouchedZusatz = true;
@@ -1721,10 +1904,17 @@
           els.resetBtn.addEventListener("click", () => {
             els.gross.value = "3500";
             els.period.value = "month";
+            els.benefit.value = "0";
+            els.allowance.value = "0";
             els.year.value = "2026";
             els.taxClass.value = "1";
             els.state.value = "Berlin";
-            els.children.value = "0";
+            els.age.value = "25";
+            els.childrenU25.value = "0";
+            els.childrenTotal.value = "0";
+            els.kinderFreibetrag.value = "0";
+            els.rvMode.value = "on";
+            els.avMode.value = "on";
             els.zusatz.value = "2.9";
             userTouchedZusatz = false;
             els.assumptionMode.value = "standard";
@@ -1741,11 +1931,20 @@
             const r = compute();
             const txt = [
               "German Salary Calculator — summary",
-              `Gross: ${fmtEUR.format(r.inputs.grossAnnual)} / year (${fmtEUR.format(
+              `Gross (cash): ${fmtEUR.format(r.inputs.cashGrossAnnual)} / year (${fmtEUR.format(
+                r.inputs.cashGrossMonthly
+              )} / month)`,
+              `Benefit in kind: ${fmtEUR.format(r.inputs.benefitAnnual)} / year (${fmtEUR.format(
+                r.inputs.benefitMonthly
+              )} / month)`,
+              `Gross (total): ${fmtEUR.format(r.inputs.grossAnnual)} / year (${fmtEUR.format(
                 r.inputs.grossMonthly
               )} / month)`,
-              `Net: ${fmtEUR.format(r.annual.net)} / year (${fmtEUR.format(
-                r.monthly.net
+              `Net (cash): ${fmtEUR.format(r.annual.netCash)} / year (${fmtEUR.format(
+                r.monthly.netCash
+              )} / month)`,
+              `Net (incl. benefit): ${fmtEUR.format(r.annual.netTotal)} / year (${fmtEUR.format(
+                r.monthly.netTotal
               )} / month)`,
               `State: ${r.inputs.state}; Tax class: ${["", "I", "II", "III", "IV", "V", "VI"][r.inputs.taxClass]}; Year model: ${r.model.label}`,
               `Deductions: ${fmtEUR.format(r.annual.deductions)} (${fmtPct.format(
