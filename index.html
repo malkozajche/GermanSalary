@@ -366,9 +366,15 @@
         transform: translateY(6px);
         pointer-events: none;
         transition: opacity 150ms ease, transform 150ms ease;
+        max-height: min(260px, calc(100vh - 140px));
+        overflow: auto;
       }
       :root[data-theme="light"] .tip {
-        background: rgba(15, 23, 42, 0.94);
+        /* Higher contrast in light theme */
+        background: rgba(255, 255, 255, 0.98);
+        color: rgba(15, 23, 42, 0.92);
+        border: 1px solid rgba(15, 23, 42, 0.14);
+        box-shadow: 0 22px 70px rgba(2, 6, 23, 0.18);
       }
       .tipWrap:hover .tip,
       .tipWrap:focus-within .tip {
@@ -382,15 +388,10 @@
         transform: translateY(0);
         pointer-events: auto;
       }
-      /* Keep tooltips inside viewport: JS toggles these classes */
-      .tipWrap.posBottom .tip {
-        inset: calc(100% + 10px) auto auto 0;
-      }
-      .tipWrap.alignRight .tip {
-        inset: auto 0 calc(100% + 10px) auto;
-      }
-      .tipWrap.posBottom.alignRight .tip {
-        inset: calc(100% + 10px) 0 auto auto;
+      /* When opened on mobile, we place the tip as fixed-position and clamp to viewport */
+      .tipWrap.fixedTip .tip {
+        position: fixed;
+        inset: auto;
       }
       .tip strong {
         font-weight: 650;
@@ -1628,27 +1629,50 @@
           // Tooltips: make them work on touch devices
           const positionTip = (wrap) => {
             const tip = wrap?.querySelector?.(".tip");
+            const btn = wrap?.querySelector?.(".tipBtn");
             if (!tip) return;
+            if (!btn) return;
 
-            // Reset then measure.
-            wrap.classList.remove("posBottom", "alignRight");
-            const r = tip.getBoundingClientRect();
-            const pad = 8;
+            // Place tooltip within viewport (top/bottom + left/right clamped).
+            wrap.classList.add("fixedTip");
+            tip.style.left = "";
+            tip.style.top = "";
 
-            // If it goes off the top, show below.
-            if (r.top < pad) wrap.classList.add("posBottom");
-            // If it goes off the right edge, align right.
-            const r2 = tip.getBoundingClientRect();
-            if (r2.right > window.innerWidth - pad) wrap.classList.add("alignRight");
-            // If it's still offscreen left, align left (default) and rely on width constraint.
+            const pad = 10;
+            const gap = 10;
+            const b = btn.getBoundingClientRect();
+            const tr = tip.getBoundingClientRect();
+
+            const maxLeft = Math.max(pad, window.innerWidth - pad - tr.width);
+            let left = b.left + b.width / 2 - tr.width / 2;
+            left = Math.min(maxLeft, Math.max(pad, left));
+
+            // Prefer above, otherwise below; then clamp.
+            const aboveTop = b.top - gap - tr.height;
+            const belowTop = b.bottom + gap;
+            let top = aboveTop;
+            if (aboveTop < pad) top = belowTop;
+            if (top + tr.height > window.innerHeight - pad) {
+              // If below overflows, try above; otherwise clamp to top padding.
+              if (aboveTop >= pad) top = aboveTop;
+              top = Math.min(window.innerHeight - pad - tr.height, Math.max(pad, top));
+            }
+
+            tip.style.left = `${left}px`;
+            tip.style.top = `${top}px`;
           };
 
           const closeAllTips = () => {
             document.querySelectorAll(".tipWrap.open").forEach((w) => {
               w.classList.remove("open");
-              w.classList.remove("posBottom", "alignRight");
+              w.classList.remove("fixedTip");
               const b = w.querySelector(".tipBtn");
               if (b) b.setAttribute("aria-expanded", "false");
+              const tip = w.querySelector(".tip");
+              if (tip) {
+                tip.style.left = "";
+                tip.style.top = "";
+              }
             });
           };
           document.addEventListener("click", (e) => {
@@ -1664,7 +1688,11 @@
               btn.setAttribute("aria-expanded", (!isOpen).toString());
               if (!isOpen) {
                 // Measure after it becomes visible.
-                requestAnimationFrame(() => positionTip(wrap));
+                requestAnimationFrame(() => {
+                  positionTip(wrap);
+                  // Some mobile browsers settle layout after another frame.
+                  requestAnimationFrame(() => positionTip(wrap));
+                });
               }
               return;
             }
