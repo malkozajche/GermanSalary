@@ -709,8 +709,8 @@
                   <input
                     id="gross"
                     inputmode="decimal"
-                    placeholder="e.g. 60000"
-                    value="60000"
+                    placeholder="e.g. 5000"
+                    value="5000"
                   />
                 </label>
 
@@ -728,8 +728,8 @@
                     </span>
                   </span>
                   <select id="period">
-                    <option value="year" selected>Annual (per year)</option>
-                    <option value="month">Monthly (per month)</option>
+                    <option value="year">Annual (per year)</option>
+                    <option value="month" selected>Monthly (per month)</option>
                   </select>
                 </label>
               </div>
@@ -1567,7 +1567,7 @@
         function applyURLParams() {
           const p = new URLSearchParams(location.search);
           if (p.has("gross")) els.gross.value = String(p.get("gross") || "");
-          if (p.has("period")) els.period.value = p.get("period") || "year";
+          if (p.has("period")) els.period.value = p.get("period") || "month";
           if (p.has("year")) els.year.value = p.get("year") || "2026";
           if (p.has("taxClass")) els.taxClass.value = p.get("taxClass") || "1";
           if (p.has("state")) els.state.value = p.get("state") || STATES[0];
@@ -1719,8 +1719,8 @@
 
           // Buttons
           els.resetBtn.addEventListener("click", () => {
-            els.gross.value = "60000";
-            els.period.value = "year";
+            els.gross.value = "5000";
+            els.period.value = "month";
             els.year.value = "2026";
             els.taxClass.value = "1";
             els.state.value = "Berlin";
