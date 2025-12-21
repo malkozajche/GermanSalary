@@ -728,13 +728,15 @@
                         Uses a simplified German income tax function (zones +
                         top rates). Values can differ from official withholding
                         due to many real-world factors (allowances, bonuses,
-                        exact insurance settings, etc.).
+                        exact insurance settings, etc.). The <strong>2026</strong>
+                        model mainly updates <strong>social insurance inputs</strong>
+                        (BBG + PV rates) based on the provided 2026 figures.
                       </span>
                     </span>
                   </span>
                   <select id="year">
-                    <option value="2026">2026 (approx: social rates)</option>
-                    <option value="2025" selected>2025 (approx)</option>
+                    <option value="2026" selected>2026 (approx: social rates)</option>
+                    <option value="2025">2025 (approx)</option>
                     <option value="2024">2024 (approx)</option>
                   </select>
                 </label>
@@ -916,7 +918,7 @@
                       </span>
                     </span>
                   </span>
-                  <input id="zusatz" inputmode="decimal" value="1.7" />
+                  <input id="zusatz" inputmode="decimal" value="2.9" />
                 </label>
                 <label>
                   <span class="labelLine">
@@ -1281,6 +1283,9 @@
           resetBtn: $("resetBtn"),
         };
 
+        // Track if the user intentionally set a value (so model switches don't overwrite it).
+        let userTouchedZusatz = false;
+
         function clamp(n, min, max) {
           return Math.min(max, Math.max(min, n));
         }
@@ -1545,11 +1550,14 @@
           const p = new URLSearchParams(location.search);
           if (p.has("gross")) els.gross.value = String(p.get("gross") || "");
           if (p.has("period")) els.period.value = p.get("period") || "year";
-          if (p.has("year")) els.year.value = p.get("year") || "2025";
+          if (p.has("year")) els.year.value = p.get("year") || "2026";
           if (p.has("taxClass")) els.taxClass.value = p.get("taxClass") || "1";
           if (p.has("state")) els.state.value = p.get("state") || STATES[0];
           if (p.has("children")) els.children.value = String(p.get("children") || "0");
-          if (p.has("zusatz")) els.zusatz.value = String(p.get("zusatz") || "1.7");
+          if (p.has("zusatz")) {
+            els.zusatz.value = String(p.get("zusatz") || "2.9");
+            userTouchedZusatz = true;
+          }
           if (p.has("church")) setSwitch(els.churchTax, p.get("church") === "1");
           if (p.has("pkv")) setSwitch(els.isPrivate, p.get("pkv") === "1");
           if (p.has("pkvPremium")) els.pkvPremium.value = String(p.get("pkvPremium") || "450");
@@ -1600,15 +1608,27 @@
             $("calcForm").addEventListener(evt, () => render());
           });
 
+          // If the user types a custom Zusatzbeitrag, keep it across model switches.
+          els.zusatz.addEventListener("input", () => {
+            userTouchedZusatz = true;
+          });
+          // Convenience: when switching to 2026, set the typical 2.9% if user hasn't chosen a value.
+          els.year.addEventListener("change", () => {
+            if (Number(els.year.value) === 2026 && !userTouchedZusatz) {
+              els.zusatz.value = "2.9";
+            }
+          });
+
           // Buttons
           els.resetBtn.addEventListener("click", () => {
             els.gross.value = "60000";
             els.period.value = "year";
-            els.year.value = "2025";
+            els.year.value = "2026";
             els.taxClass.value = "1";
             els.state.value = "Berlin";
             els.children.value = "0";
-            els.zusatz.value = "1.7";
+            els.zusatz.value = "2.9";
+            userTouchedZusatz = false;
             els.assumptionMode.value = "standard";
             setSwitch(els.churchTax, false);
             setSwitch(els.isPrivate, false);
