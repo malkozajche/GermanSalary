@@ -1,0 +1,1403 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="German salary (Brutto → Netto) calculator with tooltips. Estimate net pay and deductions."
+    />
+    <title>German Salary Calculator (Brutto → Netto)</title>
+    <style>
+      :root {
+        --bg: #0b1220;
+        --panel: rgba(255, 255, 255, 0.06);
+        --panel2: rgba(255, 255, 255, 0.09);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.68);
+        --subtle: rgba(255, 255, 255, 0.12);
+        --border: rgba(255, 255, 255, 0.14);
+        --shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+        --brand: #7c3aed; /* violet */
+        --brand2: #22c55e; /* green */
+        --warn: #f59e0b; /* amber */
+        --danger: #ef4444; /* red */
+        --ring: 0 0 0 4px rgba(124, 58, 237, 0.28);
+        --radius: 18px;
+        color-scheme: dark;
+      }
+      :root[data-theme="light"] {
+        --bg: #f7f7fb;
+        --panel: rgba(15, 23, 42, 0.05);
+        --panel2: rgba(15, 23, 42, 0.08);
+        --text: rgba(15, 23, 42, 0.92);
+        --muted: rgba(15, 23, 42, 0.68);
+        --subtle: rgba(15, 23, 42, 0.1);
+        --border: rgba(15, 23, 42, 0.12);
+        --shadow: 0 18px 60px rgba(2, 6, 23, 0.12);
+        --ring: 0 0 0 4px rgba(124, 58, 237, 0.22);
+        color-scheme: light;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background: radial-gradient(
+            1200px 700px at 10% 5%,
+            rgba(124, 58, 237, 0.35),
+            transparent 55%
+          ),
+          radial-gradient(
+            900px 600px at 85% 10%,
+            rgba(34, 197, 94, 0.22),
+            transparent 50%
+          ),
+          radial-gradient(
+            1200px 700px at 60% 115%,
+            rgba(59, 130, 246, 0.2),
+            transparent 55%
+          ),
+          var(--bg);
+        color: var(--text);
+        line-height: 1.45;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .container {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 28px 18px 48px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .logo {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--brand), #3b82f6);
+        box-shadow: 0 12px 28px rgba(124, 58, 237, 0.35);
+        display: grid;
+        place-items: center;
+      }
+      .logo svg {
+        width: 22px;
+        height: 22px;
+        opacity: 0.98;
+      }
+      .title h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.2px;
+      }
+      .title p {
+        margin: 2px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+      .pill small {
+        color: var(--muted);
+      }
+      .toggle {
+        position: relative;
+        width: 44px;
+        height: 26px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--panel2);
+        cursor: pointer;
+        outline: none;
+      }
+      .toggle:focus-visible {
+        box-shadow: var(--ring);
+      }
+      .toggle .dot {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--brand2), #38bdf8);
+        transition: transform 180ms ease;
+      }
+      :root[data-theme="light"] .toggle .dot {
+        background: linear-gradient(135deg, var(--brand), #38bdf8);
+      }
+      .toggle[aria-checked="true"] .dot {
+        transform: translateX(18px);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.25fr 1fr;
+        gap: 16px;
+        align-items: start;
+      }
+      @media (max-width: 980px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card {
+        background: linear-gradient(180deg, var(--panel), transparent 210%),
+          var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+        overflow: clip;
+      }
+      .card .head {
+        padding: 16px 16px 10px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .card .head h2 {
+        margin: 0;
+        font-size: 14px;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.86);
+      }
+      :root[data-theme="light"] .card .head h2 {
+        color: rgba(15, 23, 42, 0.82);
+      }
+      .card .head .meta {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .card .body {
+        padding: 16px;
+      }
+
+      form {
+        display: grid;
+        gap: 14px;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      @media (max-width: 560px) {
+        .row {
+          grid-template-columns: 1fr;
+        }
+      }
+      label {
+        display: grid;
+        gap: 6px;
+      }
+      .labelLine {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .labelLine strong {
+        color: var(--text);
+        font-weight: 600;
+        font-size: 13px;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 11px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--panel2);
+        color: var(--text);
+        outline: none;
+        transition: box-shadow 120ms ease, border-color 120ms ease;
+      }
+      input:focus-visible,
+      select:focus-visible {
+        box-shadow: var(--ring);
+        border-color: rgba(124, 58, 237, 0.55);
+      }
+      input::placeholder {
+        color: rgba(255, 255, 255, 0.38);
+      }
+      :root[data-theme="light"] input::placeholder {
+        color: rgba(15, 23, 42, 0.4);
+      }
+
+      .checkRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--panel2);
+      }
+      .checkRow .left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+      .checkRow .left .texts {
+        min-width: 0;
+      }
+      .checkRow .left .texts .t {
+        font-weight: 600;
+        font-size: 13px;
+        margin: 0;
+      }
+      .checkRow .left .texts .d {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 2px 0 0;
+      }
+      .switch {
+        width: 44px;
+        height: 26px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.16);
+        position: relative;
+        cursor: pointer;
+        flex: 0 0 auto;
+        outline: none;
+      }
+      :root[data-theme="light"] .switch {
+        background: rgba(15, 23, 42, 0.08);
+      }
+      .switch:focus-visible {
+        box-shadow: var(--ring);
+      }
+      .switch .dot {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--brand), #38bdf8);
+        transition: transform 170ms ease;
+      }
+      .switch[aria-checked="true"] .dot {
+        transform: translateX(18px);
+        background: linear-gradient(135deg, var(--brand2), #38bdf8);
+      }
+
+      .tipWrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+      }
+      .tipBtn {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--muted);
+        display: inline-grid;
+        place-items: center;
+        font-size: 12px;
+        cursor: pointer;
+        padding: 0;
+      }
+      :root[data-theme="light"] .tipBtn {
+        background: rgba(15, 23, 42, 0.06);
+      }
+      .tipBtn:focus-visible {
+        box-shadow: var(--ring);
+      }
+      .tip {
+        position: absolute;
+        z-index: 20;
+        inset: auto auto calc(100% + 10px) 0;
+        width: min(320px, calc(100vw - 40px));
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(2, 6, 23, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 12px;
+        line-height: 1.35;
+        opacity: 0;
+        transform: translateY(6px);
+        pointer-events: none;
+        transition: opacity 150ms ease, transform 150ms ease;
+      }
+      :root[data-theme="light"] .tip {
+        background: rgba(15, 23, 42, 0.94);
+      }
+      .tipWrap:hover .tip,
+      .tipWrap:focus-within .tip {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      .tip strong {
+        font-weight: 650;
+      }
+
+      .resultHero {
+        padding: 16px;
+        display: grid;
+        gap: 12px;
+      }
+      .big {
+        font-size: 34px;
+        font-weight: 750;
+        letter-spacing: -0.4px;
+        margin: 2px 0 0;
+      }
+      .subRow {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--panel2);
+      }
+      .badge b {
+        color: var(--text);
+        font-weight: 650;
+      }
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 8px 0;
+      }
+      .breakdown {
+        display: grid;
+        gap: 10px;
+        padding: 14px 16px 16px;
+      }
+      .line {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 12px;
+      }
+      .line .k {
+        color: var(--muted);
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+      .line .k span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .line .v {
+        font-variant-numeric: tabular-nums;
+        font-size: 13px;
+      }
+      .bar {
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      :root[data-theme="light"] .bar {
+        background: rgba(15, 23, 42, 0.07);
+        border: 1px solid rgba(15, 23, 42, 0.1);
+      }
+      .fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--brand), #38bdf8);
+      }
+      .fill.green {
+        background: linear-gradient(90deg, var(--brand2), #38bdf8);
+      }
+      .fill.amber {
+        background: linear-gradient(90deg, var(--warn), #fb7185);
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 0 16px 16px;
+      }
+      .btn {
+        border: 1px solid var(--border);
+        background: var(--panel2);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 650;
+        font-size: 13px;
+        outline: none;
+      }
+      .btn:focus-visible {
+        box-shadow: var(--ring);
+      }
+      .btn.primary {
+        border-color: rgba(124, 58, 237, 0.52);
+        background: linear-gradient(
+          135deg,
+          rgba(124, 58, 237, 0.22),
+          rgba(56, 189, 248, 0.18)
+        );
+      }
+      .btn.danger {
+        border-color: rgba(239, 68, 68, 0.45);
+        background: linear-gradient(
+          135deg,
+          rgba(239, 68, 68, 0.14),
+          rgba(245, 158, 11, 0.12)
+        );
+      }
+      footer {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 0 2px;
+      }
+      footer .note {
+        max-width: 820px;
+      }
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 12px;
+      }
+      .srOnly {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 3v18M5 8h14M6 16h12"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+          <div class="title">
+            <h1>German Salary Calculator</h1>
+            <p>Brutto → Netto estimate with a clean breakdown + tooltips</p>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="pill" title="Theme">
+            <small>Theme</small>
+            <button
+              id="themeToggle"
+              class="toggle"
+              type="button"
+              role="switch"
+              aria-checked="false"
+              aria-label="Toggle light/dark theme"
+            >
+              <span class="dot" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div class="grid">
+        <section class="card" aria-label="Inputs">
+          <div class="head">
+            <h2>Inputs</h2>
+            <p class="meta">Live-updating • no sign-up • local only</p>
+          </div>
+          <div class="body">
+            <form id="calcForm" autocomplete="off">
+              <div class="row">
+                <label>
+                  <span class="labelLine">
+                    <strong>Gross salary</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">
+                        ?
+                      </button>
+                      <span class="tip" role="tooltip">
+                        <strong>Gross</strong> is your salary before taxes and
+                        employee social contributions. This calculator estimates
+                        <strong>net pay</strong> after typical German deductions.
+                      </span>
+                    </span>
+                  </span>
+                  <input
+                    id="gross"
+                    inputmode="decimal"
+                    placeholder="e.g. 60000"
+                    value="60000"
+                  />
+                </label>
+
+                <label>
+                  <span class="labelLine">
+                    <strong>Pay period</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">
+                        ?
+                      </button>
+                      <span class="tip" role="tooltip">
+                        Choose whether the gross number is <strong>annual</strong>
+                        or <strong>monthly</strong>. Results always show both.
+                      </span>
+                    </span>
+                  </span>
+                  <select id="period">
+                    <option value="year" selected>Annual (per year)</option>
+                    <option value="month">Monthly (per month)</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="row">
+                <label>
+                  <span class="labelLine">
+                    <strong>Tax year (estimate model)</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">
+                        ?
+                      </button>
+                      <span class="tip" role="tooltip">
+                        Uses a simplified German income tax function (zones +
+                        top rates). Values can differ from official withholding
+                        due to many real-world factors (allowances, bonuses,
+                        exact insurance settings, etc.).
+                      </span>
+                    </span>
+                  </span>
+                  <select id="year">
+                    <option value="2025" selected>2025 (approx)</option>
+                    <option value="2024">2024 (approx)</option>
+                  </select>
+                </label>
+
+                <label>
+                  <span class="labelLine">
+                    <strong>Tax class (Steuerklasse)</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">
+                        ?
+                      </button>
+                      <span class="tip" role="tooltip">
+                        Tax class affects <strong>withholding</strong> (monthly
+                        payroll). Final annual tax can differ after filing. Here
+                        we use a practical approximation:
+                        <strong>I/IV</strong> baseline, <strong>II</strong> with
+                        single-parent relief, <strong>III</strong> married
+                        splitting, <strong>V/VI</strong> higher withholding.
+                      </span>
+                    </span>
+                  </span>
+                  <select id="taxClass">
+                    <option value="1" selected>I</option>
+                    <option value="2">II</option>
+                    <option value="3">III</option>
+                    <option value="4">IV</option>
+                    <option value="5">V</option>
+                    <option value="6">VI</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="row">
+                <label>
+                  <span class="labelLine">
+                    <strong>Federal state (Bundesland)</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">
+                        ?
+                      </button>
+                      <span class="tip" role="tooltip">
+                        State matters mainly for <strong>church tax</strong>
+                        (8% in Bayern/Baden‑Württemberg; 9% elsewhere) and a
+                        special split for <strong>care insurance</strong> in
+                        Sachsen (employee share is higher).
+                      </span>
+                    </span>
+                  </span>
+                  <select id="state"></select>
+                </label>
+
+                <label>
+                  <span class="labelLine">
+                    <strong>Children (for care insurance)</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">
+                        ?
+                      </button>
+                      <span class="tip" role="tooltip">
+                        We use children only for the
+                        <strong>childless care surcharge</strong> (typically
+                        applied when you have 0 children). Child-related tax
+                        rules are more complex and not fully modeled here.
+                      </span>
+                    </span>
+                  </span>
+                  <input id="children" inputmode="numeric" value="0" />
+                </label>
+              </div>
+
+              <div class="checkRow">
+                <div class="left">
+                  <div class="texts">
+                    <p class="t">Church tax (Kirchensteuer)</p>
+                    <p class="d">Adds 8%/9% of income tax (if applicable)</p>
+                  </div>
+                  <span class="tipWrap">
+                    <button class="tipBtn" type="button" aria-label="Help">?</button>
+                    <span class="tip" role="tooltip">
+                      If enabled, we add church tax as a percentage of the
+                      estimated income tax. (Bayern &amp; Baden‑Württemberg:
+                      8%. All other states: 9%.)
+                    </span>
+                  </span>
+                </div>
+                <button
+                  id="churchTax"
+                  class="switch"
+                  type="button"
+                  role="switch"
+                  aria-checked="false"
+                >
+                  <span class="dot" aria-hidden="true"></span>
+                </button>
+              </div>
+
+              <div class="checkRow">
+                <div class="left">
+                  <div class="texts">
+                    <p class="t">Private health insurance (PKV)</p>
+                    <p class="d">If on PKV, enter your monthly premium</p>
+                  </div>
+                  <span class="tipWrap">
+                    <button class="tipBtn" type="button" aria-label="Help">?</button>
+                    <span class="tip" role="tooltip">
+                      If you’re privately insured, statutory health insurance
+                      contributions don’t apply the same way. This calculator
+                      uses your entered premium instead of the statutory health
+                      formula (still an estimate).
+                    </span>
+                  </span>
+                </div>
+                <button
+                  id="isPrivate"
+                  class="switch"
+                  type="button"
+                  role="switch"
+                  aria-checked="false"
+                >
+                  <span class="dot" aria-hidden="true"></span>
+                </button>
+              </div>
+
+              <div class="row" id="privateRow" hidden>
+                <label>
+                  <span class="labelLine">
+                    <strong>PKV monthly premium</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">
+                        ?
+                      </button>
+                      <span class="tip" role="tooltip">
+                        Enter your personal monthly private health insurance
+                        premium (employee share). Example: 450.
+                      </span>
+                    </span>
+                  </span>
+                  <input id="pkvPremium" inputmode="decimal" value="450" />
+                </label>
+                <label>
+                  <span class="labelLine">
+                    <strong>Include care insurance estimate</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">
+                        ?
+                      </button>
+                      <span class="tip" role="tooltip">
+                        Care insurance (Pflegeversicherung) also exists under
+                        private insurance, but the real amount depends on your
+                        plan. If you enable this, we estimate it using the same
+                        care-rate model as statutory.
+                      </span>
+                    </span>
+                  </span>
+                  <select id="pkvCareMode">
+                    <option value="estimate" selected>Estimate care insurance</option>
+                    <option value="zero">Do not include</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="row">
+                <label>
+                  <span class="labelLine">
+                    <strong>Health “Zusatzbeitrag” (%)</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">
+                        ?
+                      </button>
+                      <span class="tip" role="tooltip">
+                        In statutory health insurance, employees typically pay
+                        <strong>half</strong> of the “Zusatzbeitrag”. Enter the
+                        full percentage (e.g. 1.7) and we’ll apply half to the
+                        employee share.
+                      </span>
+                    </span>
+                  </span>
+                  <input id="zusatz" inputmode="decimal" value="1.7" />
+                </label>
+                <label>
+                  <span class="labelLine">
+                    <strong>Assumptions</strong>
+                    <span class="tipWrap">
+                      <button class="tipBtn" type="button" aria-label="Help">
+                        ?
+                      </button>
+                      <span class="tip" role="tooltip">
+                        We assume standard employee contribution rates and
+                        typical deductible allowances. Many factors can change
+                        results (bonuses, pension plans, tax allowances,
+                        additional deductions, etc.).
+                      </span>
+                    </span>
+                  </span>
+                  <select id="assumptionMode">
+                    <option value="standard" selected>Standard employee</option>
+                    <option value="conservative">Conservative (slightly higher tax)</option>
+                  </select>
+                </label>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <aside class="card" aria-label="Results">
+          <div class="head">
+            <h2>Results</h2>
+            <p class="meta" id="resultMeta">—</p>
+          </div>
+          <div class="resultHero">
+            <div>
+              <div class="subRow">
+                <span class="badge">
+                  <b id="netMonthly">—</b>
+                  <span>/ month net</span>
+                </span>
+                <span class="badge">
+                  <b id="netAnnual">—</b>
+                  <span>/ year net</span>
+                </span>
+              </div>
+              <div class="big" id="headline">—</div>
+              <div class="subRow" id="subtitle">—</div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="breakdown" id="breakdown"></div>
+          <div class="actions">
+            <button class="btn primary" id="copyBtn" type="button">
+              Copy summary
+            </button>
+            <button class="btn" id="shareBtn" type="button">Copy link</button>
+            <button class="btn danger" id="resetBtn" type="button">
+              Reset
+            </button>
+          </div>
+        </aside>
+      </div>
+
+      <footer>
+        <div class="note">
+          This is a <strong>fast estimate</strong> (not payroll software). If you
+          need exact results, use an official withholding calculator or consult a
+          tax professional.
+        </div>
+        <div class="mono" id="versionTag">model: —</div>
+      </footer>
+    </div>
+
+    <script>
+      (() => {
+        const $ = (id) => document.getElementById(id);
+        const fmtEUR = new Intl.NumberFormat("de-DE", {
+          style: "currency",
+          currency: "EUR",
+          maximumFractionDigits: 2,
+        });
+        const fmtPct = new Intl.NumberFormat("de-DE", {
+          style: "percent",
+          maximumFractionDigits: 2,
+        });
+
+        const STATES = [
+          "Baden-Württemberg",
+          "Bayern",
+          "Berlin",
+          "Brandenburg",
+          "Bremen",
+          "Hamburg",
+          "Hessen",
+          "Mecklenburg-Vorpommern",
+          "Niedersachsen",
+          "Nordrhein-Westfalen",
+          "Rheinland-Pfalz",
+          "Saarland",
+          "Sachsen",
+          "Sachsen-Anhalt",
+          "Schleswig-Holstein",
+          "Thüringen",
+        ];
+
+        // "Approx" model numbers. Intent: solid UX and clear estimates, not legal accuracy.
+        const MODELS = {
+          2025: {
+            label: "2025 (approx)",
+            // Wage tax / income tax model (roughly in line with recent BMF zone functions).
+            tax: {
+              // thresholds are annual taxable income
+              grundfreibetrag: 12096,
+              zone1_end: 18600,
+              zone2_end: 69000,
+              zone3_end: 277825,
+              // constants tuned for smoothness; see notes in README
+              z1: { a: 980.14, b: 1400, base: 0, offset: 12096 },
+              z2: { a: 216.16, b: 2397, base: 1025.38, offset: 18600 },
+              z3: { rate: 0.42, sub: 11000 },
+              z4: { rate: 0.45, sub: 19300 },
+              soli_exempt_tax: 18130, // based on income tax amount (approx), single
+            },
+            allowances: {
+              werbungskosten: 1230,
+              sonderausgaben: 36,
+              // tax class II relief (approx)
+              entlastungsbetrag_II: 4260,
+            },
+            social: {
+              bbg_health_month: 5175,
+              bbg_pension_month: 7550,
+              rv_employee: 0.093,
+              av_employee: 0.013,
+              kv_employee_base: 0.073, // plus half zusatzbeitrag
+              pv_employee: 0.017,
+              pv_employee_saxony: 0.022,
+              pv_childless_surcharge: 0.0035,
+            },
+          },
+          2024: {
+            label: "2024 (approx)",
+            tax: {
+              grundfreibetrag: 11604,
+              zone1_end: 17000,
+              zone2_end: 67000,
+              zone3_end: 277825,
+              z1: { a: 922.98, b: 1400, base: 0, offset: 11604 },
+              z2: { a: 181.19, b: 2397, base: 1025.38, offset: 17000 },
+              z3: { rate: 0.42, sub: 10602.13 },
+              z4: { rate: 0.45, sub: 18936.88 },
+              soli_exempt_tax: 18130,
+            },
+            allowances: {
+              werbungskosten: 1230,
+              sonderausgaben: 36,
+              entlastungsbetrag_II: 4260,
+            },
+            social: {
+              bbg_health_month: 5175,
+              bbg_pension_month: 7550,
+              rv_employee: 0.093,
+              av_employee: 0.013,
+              kv_employee_base: 0.073,
+              pv_employee: 0.017,
+              pv_employee_saxony: 0.022,
+              pv_childless_surcharge: 0.0035,
+            },
+          },
+        };
+
+        const els = {
+          gross: $("gross"),
+          period: $("period"),
+          year: $("year"),
+          taxClass: $("taxClass"),
+          state: $("state"),
+          children: $("children"),
+          zusatz: $("zusatz"),
+          assumptionMode: $("assumptionMode"),
+          churchTax: $("churchTax"),
+          isPrivate: $("isPrivate"),
+          privateRow: $("privateRow"),
+          pkvPremium: $("pkvPremium"),
+          pkvCareMode: $("pkvCareMode"),
+          themeToggle: $("themeToggle"),
+          netMonthly: $("netMonthly"),
+          netAnnual: $("netAnnual"),
+          headline: $("headline"),
+          subtitle: $("subtitle"),
+          breakdown: $("breakdown"),
+          resultMeta: $("resultMeta"),
+          versionTag: $("versionTag"),
+          copyBtn: $("copyBtn"),
+          shareBtn: $("shareBtn"),
+          resetBtn: $("resetBtn"),
+        };
+
+        function clamp(n, min, max) {
+          return Math.min(max, Math.max(min, n));
+        }
+
+        function parseNum(value) {
+          const v = String(value ?? "")
+            .trim()
+            .replace(/\./g, "")
+            .replace(",", ".");
+          const n = Number(v);
+          return Number.isFinite(n) ? n : 0;
+        }
+
+        function setSwitch(el, checked) {
+          el.setAttribute("aria-checked", checked ? "true" : "false");
+        }
+        function getSwitch(el) {
+          return el.getAttribute("aria-checked") === "true";
+        }
+
+        function churchRateForState(state) {
+          return state === "Bayern" || state === "Baden-Württemberg" ? 0.08 : 0.09;
+        }
+
+        // Progressive annual income tax for "Grundtarif" (single) estimate.
+        function incomeTaxAnnual(taxableIncome, model) {
+          const t = model.tax;
+          const x = Math.max(0, taxableIncome);
+          if (x <= t.grundfreibetrag) return 0;
+
+          if (x <= t.zone1_end) {
+            const y = (x - t.z1.offset) / 10000;
+            return (t.z1.a * y + t.z1.b) * y + t.z1.base;
+          }
+          if (x <= t.zone2_end) {
+            const z = (x - t.z2.offset) / 10000;
+            return (t.z2.a * z + t.z2.b) * z + t.z2.base;
+          }
+          if (x <= t.zone3_end) {
+            return t.z3.rate * x - t.z3.sub;
+          }
+          return t.z4.rate * x - t.z4.sub;
+        }
+
+        function solidarityAnnual(incomeTax, splittingFactor, model) {
+          // Simplified: fully exempt under a tax-amount threshold, then 5.5% afterwards.
+          const t = model.tax;
+          const threshold = t.soli_exempt_tax * splittingFactor;
+          if (incomeTax <= threshold) return 0;
+          return 0.055 * incomeTax;
+        }
+
+        function taxClassFactor(taxClass) {
+          // Used for a pragmatic "monthly payroll feel".
+          // - I/IV: baseline
+          // - II: baseline, but with relief modeled separately
+          // - III: married splitting (modeled by splittingFactor)
+          // - V/VI: higher withholding (multiplier)
+          if (taxClass === 5) return 1.25;
+          if (taxClass === 6) return 1.35;
+          return 1.0;
+        }
+
+        function splittingFactorForTaxClass(taxClass) {
+          // If class III: treat as married splitting.
+          // (This is not how annual reality works across partners, but gives an intuitive estimate.)
+          return taxClass === 3 ? 2 : 1;
+        }
+
+        function compute() {
+          const model = MODELS[Number(els.year.value)] ?? MODELS[2025];
+          const grossInput = parseNum(els.gross.value);
+          const period = els.period.value;
+          const grossAnnual = period === "month" ? grossInput * 12 : grossInput;
+          const grossMonthly = grossAnnual / 12;
+          const taxClass = Number(els.taxClass.value);
+          const state = els.state.value;
+          const children = Math.max(0, Math.round(parseNum(els.children.value)));
+          const zusatzPct = clamp(parseNum(els.zusatz.value) / 100, 0, 0.06);
+          const conservative = els.assumptionMode.value === "conservative";
+          const churchEnabled = getSwitch(els.churchTax);
+          const isPrivate = getSwitch(els.isPrivate);
+          const pkvPremiumMonthly = parseNum(els.pkvPremium.value);
+          const includePkvCare = els.pkvCareMode.value === "estimate";
+
+          // Social contributions (employee) (monthly)
+          const s = model.social;
+          const baseKV = Math.min(grossMonthly, s.bbg_health_month);
+          const baseRV = Math.min(grossMonthly, s.bbg_pension_month);
+
+          const kvRateEmployee = s.kv_employee_base + zusatzPct / 2;
+          const pvRateBase =
+            state === "Sachsen" ? s.pv_employee_saxony : s.pv_employee;
+          const pvSurcharge = children === 0 ? s.pv_childless_surcharge : 0;
+
+          let kv = baseKV * kvRateEmployee;
+          let pv = baseKV * (pvRateBase + pvSurcharge);
+          const rv = baseRV * s.rv_employee;
+          const av = baseRV * s.av_employee;
+
+          if (isPrivate) {
+            kv = Math.max(0, pkvPremiumMonthly);
+            pv = includePkvCare ? pv : 0;
+          }
+
+          const socialMonthly = kv + pv + rv + av;
+          const socialAnnual = socialMonthly * 12;
+
+          // Taxable income estimate: gross - employee social - basic allowances
+          const a = model.allowances;
+          let allowancesAnnual = a.werbungskosten + a.sonderausgaben;
+          if (taxClass === 2) allowancesAnnual += a.entlastungsbetrag_II;
+          if (conservative) allowancesAnnual *= 0.65; // reduce deductions slightly
+
+          const taxableAnnual = Math.max(0, grossAnnual - socialAnnual - allowancesAnnual);
+
+          // Splitting & tax class heuristics
+          const splitFactor = splittingFactorForTaxClass(taxClass);
+          const taxAnnualBase =
+            splitFactor === 2
+              ? incomeTaxAnnual(taxableAnnual / 2, model) * 2
+              : incomeTaxAnnual(taxableAnnual, model);
+
+          const taxAnnual = taxAnnualBase * taxClassFactor(taxClass);
+          const soliAnnual = solidarityAnnual(taxAnnual, splitFactor, model);
+          const churchAnnual = churchEnabled ? taxAnnual * churchRateForState(state) : 0;
+
+          const netAnnual = Math.max(
+            0,
+            grossAnnual - socialAnnual - taxAnnual - soliAnnual - churchAnnual
+          );
+          const netMonthly = netAnnual / 12;
+
+          const totalDeductionsAnnual = grossAnnual - netAnnual;
+          const effectiveRate = grossAnnual > 0 ? totalDeductionsAnnual / grossAnnual : 0;
+
+          return {
+            model,
+            inputs: {
+              grossAnnual,
+              grossMonthly,
+              taxableAnnual,
+              taxClass,
+              state,
+              children,
+              zusatzPct,
+              conservative,
+              churchEnabled,
+              isPrivate,
+            },
+            monthly: { kv, pv, rv, av, social: socialMonthly, net: netMonthly },
+            annual: {
+              kv: kv * 12,
+              pv: pv * 12,
+              rv: rv * 12,
+              av: av * 12,
+              social: socialAnnual,
+              tax: taxAnnual,
+              soli: soliAnnual,
+              church: churchAnnual,
+              net: netAnnual,
+              deductions: totalDeductionsAnnual,
+              effectiveRate,
+            },
+          };
+        }
+
+        function pctOfGross(value, grossAnnual) {
+          if (!(grossAnnual > 0)) return 0;
+          return clamp(value / grossAnnual, 0, 1);
+        }
+
+        function line(label, valueAnnual, grossAnnual, fillClass = "") {
+          const pct = pctOfGross(valueAnnual, grossAnnual);
+          const pctLabel = fmtPct.format(pct);
+          const div = document.createElement("div");
+          div.innerHTML = `
+            <div class="line">
+              <div class="k"><span>${label}</span></div>
+              <div class="v">${fmtEUR.format(valueAnnual)} <span style="color: var(--muted)">(${pctLabel})</span></div>
+            </div>
+            <div class="bar" aria-hidden="true"><div class="fill ${fillClass}" style="width:${(pct * 100).toFixed(
+              1
+            )}%"></div></div>
+          `;
+          return div;
+        }
+
+        function render() {
+          const r = compute();
+          const gA = r.inputs.grossAnnual;
+
+          els.netMonthly.textContent = fmtEUR.format(r.monthly.net);
+          els.netAnnual.textContent = fmtEUR.format(r.annual.net);
+
+          els.headline.textContent = fmtEUR.format(r.monthly.net);
+          els.subtitle.textContent = `${fmtEUR.format(r.inputs.grossMonthly)} gross/month • ${fmtPct.format(
+            1 - r.annual.net / (gA || 1)
+          )} total deductions`;
+
+          els.resultMeta.textContent = `${r.model.label} • ${r.inputs.state} • class ${["", "I", "II", "III", "IV", "V", "VI"][r.inputs.taxClass]}`;
+          els.versionTag.textContent = `model: ${r.model.label}`;
+
+          els.breakdown.replaceChildren();
+          els.breakdown.appendChild(
+            line("Net pay", r.annual.net, gA, "green")
+          );
+          els.breakdown.appendChild(
+            line("Income tax (ESt) – estimate", r.annual.tax, gA, "amber")
+          );
+          els.breakdown.appendChild(
+            line("Solidarity surcharge (Soli) – estimate", r.annual.soli, gA, "")
+          );
+          els.breakdown.appendChild(
+            line("Church tax (Kirchensteuer)", r.annual.church, gA, "")
+          );
+          els.breakdown.appendChild(
+            line("Health insurance (KV) – employee", r.annual.kv, gA, "")
+          );
+          els.breakdown.appendChild(
+            line("Care insurance (PV) – employee", r.annual.pv, gA, "")
+          );
+          els.breakdown.appendChild(
+            line("Pension insurance (RV) – employee", r.annual.rv, gA, "")
+          );
+          els.breakdown.appendChild(
+            line("Unemployment insurance (AV) – employee", r.annual.av, gA, "")
+          );
+
+          // Private health: hide zusatz input UX-wise? keep visible but it won't affect kv.
+          els.privateRow.hidden = !getSwitch(els.isPrivate);
+        }
+
+        function toShareURL() {
+          const params = new URLSearchParams();
+          params.set("gross", String(parseNum(els.gross.value)));
+          params.set("period", els.period.value);
+          params.set("year", els.year.value);
+          params.set("taxClass", els.taxClass.value);
+          params.set("state", els.state.value);
+          params.set("children", String(Math.max(0, Math.round(parseNum(els.children.value)))));
+          params.set("zusatz", String(parseNum(els.zusatz.value)));
+          params.set("church", getSwitch(els.churchTax) ? "1" : "0");
+          params.set("pkv", getSwitch(els.isPrivate) ? "1" : "0");
+          params.set("pkvPremium", String(parseNum(els.pkvPremium.value)));
+          params.set("pkvCare", els.pkvCareMode.value);
+          params.set("mode", els.assumptionMode.value);
+          const base =
+            location.origin && location.origin !== "null"
+              ? `${location.origin}${location.pathname}`
+              : location.href.split("?")[0];
+          return `${base}?${params.toString()}`;
+        }
+
+        function applyURLParams() {
+          const p = new URLSearchParams(location.search);
+          if (p.has("gross")) els.gross.value = String(p.get("gross") || "");
+          if (p.has("period")) els.period.value = p.get("period") || "year";
+          if (p.has("year")) els.year.value = p.get("year") || "2025";
+          if (p.has("taxClass")) els.taxClass.value = p.get("taxClass") || "1";
+          if (p.has("state")) els.state.value = p.get("state") || STATES[0];
+          if (p.has("children")) els.children.value = String(p.get("children") || "0");
+          if (p.has("zusatz")) els.zusatz.value = String(p.get("zusatz") || "1.7");
+          if (p.has("church")) setSwitch(els.churchTax, p.get("church") === "1");
+          if (p.has("pkv")) setSwitch(els.isPrivate, p.get("pkv") === "1");
+          if (p.has("pkvPremium")) els.pkvPremium.value = String(p.get("pkvPremium") || "450");
+          if (p.has("pkvCare")) els.pkvCareMode.value = p.get("pkvCare") || "estimate";
+          if (p.has("mode")) els.assumptionMode.value = p.get("mode") || "standard";
+        }
+
+        function initTheme() {
+          const stored = localStorage.getItem("gsc_theme");
+          const prefersLight = window.matchMedia?.("(prefers-color-scheme: light)").matches;
+          const theme = stored || (prefersLight ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+          setSwitch(els.themeToggle, theme === "light");
+        }
+        function toggleTheme() {
+          const isLight = document.documentElement.dataset.theme === "light";
+          const next = isLight ? "dark" : "light";
+          document.documentElement.dataset.theme = next;
+          setSwitch(els.themeToggle, next === "light");
+          localStorage.setItem("gsc_theme", next);
+        }
+
+        function wire() {
+          // Populate states
+          els.state.replaceChildren(
+            ...STATES.map((s) => {
+              const o = document.createElement("option");
+              o.value = s;
+              o.textContent = s;
+              return o;
+            })
+          );
+          els.state.value = "Berlin";
+
+          // Switches
+          [els.churchTax, els.isPrivate, els.themeToggle].forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const next = !getSwitch(btn);
+              setSwitch(btn, next);
+              if (btn === els.isPrivate) els.privateRow.hidden = !next;
+              if (btn === els.themeToggle) toggleTheme();
+              render();
+            });
+          });
+
+          // Recompute on any input change
+          ["input", "change"].forEach((evt) => {
+            $("calcForm").addEventListener(evt, () => render());
+          });
+
+          // Buttons
+          els.resetBtn.addEventListener("click", () => {
+            els.gross.value = "60000";
+            els.period.value = "year";
+            els.year.value = "2025";
+            els.taxClass.value = "1";
+            els.state.value = "Berlin";
+            els.children.value = "0";
+            els.zusatz.value = "1.7";
+            els.assumptionMode.value = "standard";
+            setSwitch(els.churchTax, false);
+            setSwitch(els.isPrivate, false);
+            els.privateRow.hidden = true;
+            els.pkvPremium.value = "450";
+            els.pkvCareMode.value = "estimate";
+            render();
+            history.replaceState({}, "", location.pathname);
+          });
+
+          els.copyBtn.addEventListener("click", async () => {
+            const r = compute();
+            const txt = [
+              "German Salary Calculator — summary",
+              `Gross: ${fmtEUR.format(r.inputs.grossAnnual)} / year (${fmtEUR.format(
+                r.inputs.grossMonthly
+              )} / month)`,
+              `Net: ${fmtEUR.format(r.annual.net)} / year (${fmtEUR.format(
+                r.monthly.net
+              )} / month)`,
+              `State: ${r.inputs.state}; Tax class: ${["", "I", "II", "III", "IV", "V", "VI"][r.inputs.taxClass]}; Year model: ${r.model.label}`,
+              `Deductions: ${fmtEUR.format(r.annual.deductions)} (${fmtPct.format(
+                r.annual.effectiveRate
+              )})`,
+              "",
+              "Breakdown (annual):",
+              `- Income tax (est.): ${fmtEUR.format(r.annual.tax)}`,
+              `- Soli (est.): ${fmtEUR.format(r.annual.soli)}`,
+              `- Church tax: ${fmtEUR.format(r.annual.church)}`,
+              `- Social (employee): ${fmtEUR.format(r.annual.social)} (KV ${fmtEUR.format(
+                r.annual.kv
+              )}, PV ${fmtEUR.format(r.annual.pv)}, RV ${fmtEUR.format(
+                r.annual.rv
+              )}, AV ${fmtEUR.format(r.annual.av)})`,
+            ].join("\n");
+            try {
+              await navigator.clipboard.writeText(txt);
+              els.copyBtn.textContent = "Copied!";
+              setTimeout(() => (els.copyBtn.textContent = "Copy summary"), 1200);
+            } catch {
+              alert("Clipboard not available in this browser context.");
+            }
+          });
+
+          els.shareBtn.addEventListener("click", async () => {
+            const url = toShareURL();
+            try {
+              await navigator.clipboard.writeText(url);
+              els.shareBtn.textContent = "Link copied!";
+              setTimeout(() => (els.shareBtn.textContent = "Copy link"), 1200);
+            } catch {
+              prompt("Copy this link:", url);
+            }
+          });
+        }
+
+        initTheme();
+        wire();
+        applyURLParams();
+        render();
+      })();
+    </script>
+  </body>
+</html>
