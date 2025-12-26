@@ -323,6 +323,58 @@
         background: var(--brand2);
       }
 
+      .periodSlider {
+        display: flex;
+        gap: 8px;
+        padding: 4px;
+        border-radius: 12px;
+        background: var(--panel2);
+        border: 1px solid var(--border);
+      }
+      .periodOption {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 180ms ease;
+        outline: none;
+      }
+      .periodOption:focus-visible {
+        box-shadow: var(--ring);
+      }
+      .periodOption svg {
+        width: 24px;
+        height: 24px;
+        opacity: 0.7;
+        transition: opacity 180ms ease;
+      }
+      .periodOption span {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+      }
+      .periodOption.active {
+        background: var(--brand);
+        color: white;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+      }
+      .periodOption.active svg {
+        opacity: 1;
+      }
+      .periodOption:not(.active):hover {
+        background: rgba(255, 255, 255, 0.06);
+      }
+      :root[data-theme="light"] .periodOption:not(.active):hover {
+        background: rgba(15, 23, 42, 0.06);
+      }
+
       .tipWrap {
         position: relative;
         display: inline-flex;
@@ -717,10 +769,24 @@
                       </span>
                     </span>
                   </span>
-                  <select id="period">
-                    <option value="year">Annual (per year)</option>
-                    <option value="month" selected>Monthly (per month)</option>
-                  </select>
+                  <div class="periodSlider">
+                    <button type="button" class="periodOption" data-value="year" aria-label="Annual">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M3 10h18M8 2v4M16 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                      <span>Year</span>
+                    </button>
+                    <button type="button" class="periodOption active" data-value="month" aria-label="Monthly">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M3 10h18" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="12" cy="16" r="2" fill="currentColor"/>
+                      </svg>
+                      <span>Month</span>
+                    </button>
+                  </div>
+                  <input type="hidden" id="period" value="month" />
                 </label>
               </div>
 
@@ -1047,26 +1113,6 @@
                     </span>
                   </span>
                   <input id="zusatz" inputmode="decimal" value="2.9" />
-                </label>
-                <label>
-                  <span class="labelLine">
-                    <strong>Assumptions</strong>
-                    <span class="tipWrap">
-                      <button class="tipBtn" type="button" aria-label="Help">
-                        ?
-                      </button>
-                      <span class="tip" role="tooltip">
-                        We assume standard employee contribution rates and
-                        typical deductible allowances. Many factors can change
-                        results (bonuses, pension plans, tax allowances,
-                        additional deductions, etc.).
-                      </span>
-                    </span>
-                  </span>
-                  <select id="assumptionMode">
-                    <option value="standard" selected>Standard employee</option>
-                    <option value="conservative">Conservative (slightly higher tax)</option>
-                  </select>
                 </label>
               </div>
             </form>
@@ -1403,7 +1449,6 @@
           rvMode: $("rvMode"),
           avMode: $("avMode"),
           zusatz: $("zusatz"),
-          assumptionMode: $("assumptionMode"),
           churchTax: $("churchTax"),
           isPrivate: $("isPrivate"),
           privateRow: $("privateRow"),
@@ -1515,7 +1560,6 @@
           const rvOn = els.rvMode.value !== "off";
           const avOn = els.avMode.value !== "off";
           const zusatzPct = clamp(parseNum(els.zusatz.value) / 100, 0, 0.06);
-          const conservative = els.assumptionMode.value === "conservative";
           const churchEnabled = getSwitch(els.churchTax);
           const isPrivate = getSwitch(els.isPrivate);
           const pkvPremiumMonthly = parseNum(els.pkvPremium.value);
@@ -1557,7 +1601,6 @@
           const a = model.allowances;
           let allowancesAnnual = a.werbungskosten + a.sonderausgaben;
           if (taxClass === 2) allowancesAnnual += a.entlastungsbetrag_II;
-          if (conservative) allowancesAnnual *= 0.65; // reduce deductions slightly
           allowancesAnnual += annualAllowance;
 
           const taxableAnnual = Math.max(0, grossAnnual - socialAnnual - allowancesAnnual);
@@ -1603,7 +1646,6 @@
               rvOn,
               avOn,
               zusatzPct,
-              conservative,
               churchEnabled,
               isPrivate,
             },
@@ -1736,7 +1778,6 @@
           params.set("pkv", getSwitch(els.isPrivate) ? "1" : "0");
           params.set("pkvPremium", String(parseNum(els.pkvPremium.value)));
           params.set("pkvCare", els.pkvCareMode.value);
-          params.set("mode", els.assumptionMode.value);
           const base =
             location.origin && location.origin !== "null"
               ? `${location.origin}${location.pathname}`
@@ -1747,7 +1788,13 @@
         function applyURLParams() {
           const p = new URLSearchParams(location.search);
           if (p.has("gross")) els.gross.value = String(p.get("gross") || "");
-          if (p.has("period")) els.period.value = p.get("period") || "month";
+          if (p.has("period")) {
+            const period = p.get("period") || "month";
+            els.period.value = period;
+            document.querySelectorAll(".periodOption").forEach((b) => {
+              b.classList.toggle("active", b.dataset.value === period);
+            });
+          }
           if (p.has("benefit")) els.benefit.value = String(p.get("benefit") || "0");
           if (p.has("allowance")) els.allowance.value = String(p.get("allowance") || "0");
           if (p.has("year")) els.year.value = p.get("year") || "2026";
@@ -1768,7 +1815,6 @@
           if (p.has("pkv")) setSwitch(els.isPrivate, p.get("pkv") === "1");
           if (p.has("pkvPremium")) els.pkvPremium.value = String(p.get("pkvPremium") || "450");
           if (p.has("pkvCare")) els.pkvCareMode.value = p.get("pkvCare") || "estimate";
-          if (p.has("mode")) els.assumptionMode.value = p.get("mode") || "standard";
         }
 
         function initTheme() {
@@ -1797,6 +1843,18 @@
             })
           );
           els.state.value = "Berlin";
+
+          // Period slider
+          document.querySelectorAll(".periodOption").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const value = btn.dataset.value;
+              els.period.value = value;
+              document.querySelectorAll(".periodOption").forEach((b) => {
+                b.classList.toggle("active", b.dataset.value === value);
+              });
+              render();
+            });
+          });
 
           // Switches
           [els.churchTax, els.isPrivate, els.themeToggle].forEach((btn) => {
@@ -1909,6 +1967,9 @@
           els.resetBtn.addEventListener("click", () => {
             els.gross.value = "3500";
             els.period.value = "month";
+            document.querySelectorAll(".periodOption").forEach((b) => {
+              b.classList.toggle("active", b.dataset.value === "month");
+            });
             els.benefit.value = "0";
             els.allowance.value = "0";
             els.year.value = "2026";
@@ -1922,7 +1983,6 @@
             els.avMode.value = "on";
             els.zusatz.value = "2.9";
             userTouchedZusatz = false;
-            els.assumptionMode.value = "standard";
             setSwitch(els.churchTax, false);
             setSwitch(els.isPrivate, false);
             els.privateRow.hidden = true;
