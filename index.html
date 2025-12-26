@@ -45,28 +45,71 @@
       body {
         height: 100%;
       }
+      html {
+        background: var(--bg);
+      }
       body {
         margin: 0;
         font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
           Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.45;
+        min-height: 100svh;
+        /* Create a stacking context so our fixed background sits behind everything. */
+        isolation: isolate;
+      }
+      /* Background is rendered in fixed layers to avoid scroll shimmer/banding. */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        pointer-events: none;
         background: radial-gradient(
             1200px 700px at 10% 5%,
-            rgba(124, 58, 237, 0.35),
-            transparent 55%
+            rgba(124, 58, 237, 0.28),
+            transparent 56%
           ),
           radial-gradient(
             900px 600px at 85% 10%,
-            rgba(34, 197, 94, 0.22),
-            transparent 50%
+            rgba(34, 197, 94, 0.18),
+            transparent 52%
           ),
           radial-gradient(
             1200px 700px at 60% 115%,
-            rgba(59, 130, 246, 0.2),
-            transparent 55%
+            rgba(59, 130, 246, 0.16),
+            transparent 56%
           ),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 55%),
           var(--bg);
-        color: var(--text);
-        line-height: 1.45;
+        background-repeat: no-repeat;
+        transform: translateZ(0);
+      }
+      /* Subtle texture to reduce gradient banding (esp. on low-bit panels). */
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+            0deg,
+            rgba(255, 255, 255, 0.03) 0px,
+            rgba(255, 255, 255, 0.03) 1px,
+            transparent 1px,
+            transparent 5px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.018) 0px,
+            rgba(255, 255, 255, 0.018) 1px,
+            transparent 1px,
+            transparent 7px
+          );
+        opacity: 0.22;
+        mix-blend-mode: overlay;
+        transform: translateZ(0);
       }
       a {
         color: inherit;
