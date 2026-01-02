@@ -934,21 +934,6 @@
                   <input id="age" inputmode="numeric" value="25" />
                 </label>
 
-                <label>
-                  <span class="labelLine">
-                    <strong>Children (total)</strong>
-                    <span class="tipWrap">
-                      <button class="tipBtn" type="button" aria-label="Help">?</button>
-                      <span class="tip" role="tooltip">
-                        Currently informational. PV uses “children under 25”.
-                        Child-related <strong>tax</strong> rules are complex and
-                        not fully modeled yet.
-                      </span>
-                    </span>
-                  </span>
-                  <input id="childrenTotal" inputmode="numeric" value="0" />
-                </label>
-              </div>
 
               <div class="row">
                 <label>
@@ -1450,7 +1435,6 @@
           state: $("state"),
           childrenU25: $("childrenU25"),
           age: $("age"),
-          childrenTotal: $("childrenTotal"),
           kinderFreibetrag: $("kinderFreibetrag"),
           rvMode: $("rvMode"),
           avMode: $("avMode"),
@@ -1561,7 +1545,6 @@
           const state = els.state.value;
           const age = Math.max(0, Math.round(parseNum(els.age.value)));
           const childrenU25 = Math.max(0, Math.round(parseNum(els.childrenU25.value)));
-          const childrenTotal = Math.max(0, Math.round(parseNum(els.childrenTotal.value)));
           const annualAllowance = Math.max(0, parseNum(els.allowance.value));
           const rvOn = els.rvMode.value !== "off";
           const avOn = els.avMode.value !== "off";
@@ -1647,7 +1630,6 @@
               state,
               age,
               childrenU25,
-              childrenTotal,
               annualAllowance,
               rvOn,
               avOn,
@@ -1772,10 +1754,6 @@
             "childrenU25",
             String(Math.max(0, Math.round(parseNum(els.childrenU25.value))))
           );
-          params.set(
-            "childrenTotal",
-            String(Math.max(0, Math.round(parseNum(els.childrenTotal.value))))
-          );
           params.set("kfb", String(parseNum(els.kinderFreibetrag.value)));
           params.set("rv", els.rvMode.value);
           params.set("av", els.avMode.value);
@@ -1808,8 +1786,6 @@
           if (p.has("state")) els.state.value = p.get("state") || STATES[0];
           if (p.has("age")) els.age.value = String(p.get("age") || "25");
           if (p.has("childrenU25")) els.childrenU25.value = String(p.get("childrenU25") || "0");
-          if (p.has("childrenTotal"))
-            els.childrenTotal.value = String(p.get("childrenTotal") || "0");
           if (p.has("kfb")) els.kinderFreibetrag.value = String(p.get("kfb") || "0");
           if (p.has("rv")) els.rvMode.value = p.get("rv") || "on";
           if (p.has("av")) els.avMode.value = p.get("av") || "on";
@@ -1983,7 +1959,6 @@
             els.state.value = "Berlin";
             els.age.value = "25";
             els.childrenU25.value = "0";
-            els.childrenTotal.value = "0";
             els.kinderFreibetrag.value = "0";
             els.rvMode.value = "on";
             els.avMode.value = "on";
