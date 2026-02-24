@@ -1501,10 +1501,16 @@
         }
 
         function parseNum(value) {
-          const v = String(value ?? "")
-            .trim()
-            .replace(/\./g, "")
-            .replace(",", ".");
+          let v = String(value ?? "").trim();
+          if (!v) return 0;
+          if (v.includes(",")) {
+            v = v.replace(/\./g, "").replace(",", ".");
+          } else {
+            const parts = v.split(".");
+            if (parts.length > 1 && parts[parts.length - 1].length === 3) {
+              v = v.replace(/\./g, "");
+            }
+          }
           const n = Number(v);
           return Number.isFinite(n) ? n : 0;
         }
