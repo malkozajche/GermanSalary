@@ -835,12 +835,12 @@
                         ?
                       </button>
                       <span class="tip" role="tooltip">
-                        Uses a simplified German income tax function (zones +
-                        top rates). Values can differ from official withholding
-                        due to many real-world factors (allowances, bonuses,
-                        exact insurance settings, etc.). The <strong>2026</strong>
-                        model mainly updates <strong>social insurance inputs</strong>
-                        (BBG + PV rates) based on the provided 2026 figures.
+                        Uses the official §32a EStG income tax formula for
+                        the selected year. Values can differ from official
+                        withholding due to many real-world factors (allowances,
+                        bonuses, exact insurance settings, etc.). Each model
+                        uses the correct <strong>tax zones</strong>, <strong>BBG</strong>,
+                        and <strong>social insurance rates</strong> for that year.
                       </span>
                     </span>
                   </span>
@@ -906,12 +906,13 @@
                         ?
                       </button>
                       <span class="tip" role="tooltip">
-                        Seit 01.07.2023 richtet sich der Arbeitnehmer-Beitrag zur
-                        Pflegeversicherung (PV) nach der Anzahl der Kinder
+                        Der Arbeitnehmer-Beitrag zur Pflegeversicherung (PV)
+                        richtet sich nach der Anzahl der Kinder
                         <strong>unter 25 Jahren</strong>. Der Zusatzbeitrag für
                         Kinderlose beträgt <strong>0,6%</strong> (ab Alter 23).
-                        Beitragssätze: keine Kinder 2,3%, 1 Kind 1,7%, 2 Kinder
-                        1,45%, 3 Kinder 1,2%, 4 Kinder 0,95%, 5+ Kinder 0,7%.
+                        Beitragssätze (2025/2026, 3,6% Gesamt): keine Kinder
+                        2,4%, 1 Kind 1,8%, 2 Kinder 1,55%, 3 Kinder 1,3%,
+                        4 Kinder 1,05%, 5+ Kinder 0,8%.
                       </span>
                     </span>
                   </span>
@@ -1092,10 +1093,10 @@
                       <span class="tip" role="tooltip">
                         In statutory health insurance, employees typically pay
                         <strong>half</strong> of the “Zusatzbeitrag”. Enter the
-                        full percentage (e.g. 2.9) and we’ll apply half to the
-                        employee share. (For 2026, the average Zusatzbeitrag is
-                        often cited around <strong>2.9%</strong> — your actual
-                        value depends on your insurer.)
+                        full percentage and we’ll apply half to the employee
+                        share. The average Zusatzbeitrag is <strong>2.5%</strong>
+                        (2025) and <strong>2.9%</strong> (2026) — your actual
+                        value depends on your insurer.
                       </span>
                     </span>
                   </span>
@@ -1251,21 +1252,21 @@
             </summary>
             <div class="a">
               <p>
-                Am 1. Juli 2023 wurde der Beitrag zur Pflegeversicherung um 0,35 Prozent
-                angehoben, auf insgesamt <strong>3,4%</strong>. Der Zusatzbeitrag für
-                Kinderlose beträgt seit diesem Tag <strong>0,6%</strong>. Zusätzlich richtet
-                sich der Beitragssatz nun auch an der Anzahl der Kinder unter 25 Jahren.
+                Seit dem 1. Januar 2025 beträgt der Beitragssatz zur Pflegeversicherung
+                <strong>3,6%</strong> (zuvor 3,4% seit Juli 2023). Der Zusatzbeitrag für
+                Kinderlose beträgt <strong>0,6%</strong>. Der Beitragssatz richtet
+                sich auch an der Anzahl der Kinder unter 25 Jahren.
               </p>
               <p>
                 Demnach betragen die Beitragssätze für Arbeitnehmer (außer Bundesland Sachsen):
               </p>
               <div class="kvTable" aria-label="PV employee rates">
-                <div class="row2"><div class="k">Keine Kinder</div><div class="v">2,3%</div></div>
-                <div class="row2"><div class="k">1 Kind</div><div class="v">1,7% (auch wenn das Kind älter als 24 Jahre ist)</div></div>
-                <div class="row2"><div class="k">2 Kinder</div><div class="v">1,45%</div></div>
-                <div class="row2"><div class="k">3 Kinder</div><div class="v">1,2%</div></div>
-                <div class="row2"><div class="k">4 Kinder</div><div class="v">0,95%</div></div>
-                <div class="row2"><div class="k">5 und mehr Kinder</div><div class="v">0,7%</div></div>
+                <div class="row2"><div class="k">Keine Kinder (ab 23 J.)</div><div class="v">2,4%</div></div>
+                <div class="row2"><div class="k">1 Kind</div><div class="v">1,8% (auch wenn das Kind älter als 24 Jahre ist)</div></div>
+                <div class="row2"><div class="k">2 Kinder</div><div class="v">1,55%</div></div>
+                <div class="row2"><div class="k">3 Kinder</div><div class="v">1,3%</div></div>
+                <div class="row2"><div class="k">4 Kinder</div><div class="v">1,05%</div></div>
+                <div class="row2"><div class="k">5 und mehr Kinder</div><div class="v">0,8%</div></div>
               </div>
               <p>
                 Hinweis: In <strong>Sachsen</strong> gilt eine besondere Aufteilung,
@@ -1323,17 +1324,16 @@
         const MODELS = {
           2026: {
             label: "2026 (approx: social rates)",
-            // Tax function kept aligned with the 2025 "approx" model (we mainly adjust social parameters here).
             tax: {
-              grundfreibetrag: 12096,
-              zone1_end: 18600,
-              zone2_end: 69000,
+              grundfreibetrag: 12348,
+              zone1_end: 17799,
+              zone2_end: 69878,
               zone3_end: 277825,
-              z1: { a: 980.14, b: 1400, base: 0, offset: 12096 },
-              z2: { a: 216.16, b: 2397, base: 1025.38, offset: 18600 },
-              z3: { rate: 0.42, sub: 11000 },
-              z4: { rate: 0.45, sub: 19300 },
-              soli_exempt_tax: 18130,
+              z1: { a: 914.51, b: 1400, base: 0, offset: 12348 },
+              z2: { a: 173.10, b: 2397, base: 1034.87, offset: 17799 },
+              z3: { rate: 0.42, sub: 11135.63 },
+              z4: { rate: 0.45, sub: 19470.38 },
+              soli_exempt_tax: 20350,
             },
             allowances: {
               werbungskosten: 1230,
@@ -1341,71 +1341,89 @@
               entlastungsbetrag_II: 4260,
             },
             social: {
-              // BBG 2026 (as provided in the German notes)
               bbg_health_month: 5812.5,
               bbg_pension_month: 8450,
               rv_employee: 0.093,
               av_employee: 0.013,
-              kv_employee_base: 0.073, // plus half zusatzbeitrag
-              // PV employee rates (except Sachsen) depend on #children
-              pv_employee: 0.017,
-              pv_employee_saxony: 0.022,
-              pv_childless_surcharge: 0.006, // used only for Sachsen fallback here
+              kv_employee_base: 0.073,
+              pv_employee: 0.018,
+              pv_employee_saxony: 0.023,
+              pv_childless_surcharge: 0.006,
               pv_employee_table: {
-                0: 0.023,
-                1: 0.017,
-                2: 0.0145,
-                3: 0.012,
-                4: 0.0095,
-                5: 0.007,
+                0: 0.024,
+                1: 0.018,
+                2: 0.0155,
+                3: 0.013,
+                4: 0.0105,
+                5: 0.008,
+              },
+              pv_employee_saxony_table: {
+                0: 0.029,
+                1: 0.023,
+                2: 0.0205,
+                3: 0.018,
+                4: 0.0155,
+                5: 0.013,
               },
             },
           },
           2025: {
             label: "2025 (approx)",
-            // Wage tax / income tax model (roughly in line with recent BMF zone functions).
             tax: {
-              // thresholds are annual taxable income
               grundfreibetrag: 12096,
-              zone1_end: 18600,
-              zone2_end: 69000,
+              zone1_end: 17799,
+              zone2_end: 69878,
               zone3_end: 277825,
-              // constants tuned for smoothness; see notes in README
-              z1: { a: 980.14, b: 1400, base: 0, offset: 12096 },
-              z2: { a: 216.16, b: 2397, base: 1025.38, offset: 18600 },
-              z3: { rate: 0.42, sub: 11000 },
-              z4: { rate: 0.45, sub: 19300 },
-              soli_exempt_tax: 18130, // based on income tax amount (approx), single
+              z1: { a: 954.80, b: 1400, base: 0, offset: 12096 },
+              z2: { a: 173.10, b: 2397, base: 1034.87, offset: 17799 },
+              z3: { rate: 0.42, sub: 11135.63 },
+              z4: { rate: 0.45, sub: 19470.38 },
+              soli_exempt_tax: 19950,
             },
             allowances: {
               werbungskosten: 1230,
               sonderausgaben: 36,
-              // tax class II relief (approx)
               entlastungsbetrag_II: 4260,
             },
             social: {
-              bbg_health_month: 5175,
-              bbg_pension_month: 7550,
+              bbg_health_month: 5512.5,
+              bbg_pension_month: 8050,
               rv_employee: 0.093,
               av_employee: 0.013,
-              kv_employee_base: 0.073, // plus half zusatzbeitrag
-              pv_employee: 0.017,
-              pv_employee_saxony: 0.022,
-              pv_childless_surcharge: 0.0035,
+              kv_employee_base: 0.073,
+              pv_employee: 0.018,
+              pv_employee_saxony: 0.023,
+              pv_childless_surcharge: 0.006,
+              pv_employee_table: {
+                0: 0.024,
+                1: 0.018,
+                2: 0.0155,
+                3: 0.013,
+                4: 0.0105,
+                5: 0.008,
+              },
+              pv_employee_saxony_table: {
+                0: 0.029,
+                1: 0.023,
+                2: 0.0205,
+                3: 0.018,
+                4: 0.0155,
+                5: 0.013,
+              },
             },
           },
           2024: {
             label: "2024 (approx)",
             tax: {
               grundfreibetrag: 11604,
-              zone1_end: 17000,
-              zone2_end: 67000,
+              zone1_end: 17005,
+              zone2_end: 66760,
               zone3_end: 277825,
               z1: { a: 922.98, b: 1400, base: 0, offset: 11604 },
-              z2: { a: 181.19, b: 2397, base: 1025.38, offset: 17000 },
+              z2: { a: 181.19, b: 2397, base: 1025.38, offset: 17005 },
               z3: { rate: 0.42, sub: 10602.13 },
               z4: { rate: 0.45, sub: 18936.88 },
-              soli_exempt_tax: 18130,
+              soli_exempt_tax: 17543,
             },
             allowances: {
               werbungskosten: 1230,
@@ -1420,7 +1438,23 @@
               kv_employee_base: 0.073,
               pv_employee: 0.017,
               pv_employee_saxony: 0.022,
-              pv_childless_surcharge: 0.0035,
+              pv_childless_surcharge: 0.006,
+              pv_employee_table: {
+                0: 0.023,
+                1: 0.017,
+                2: 0.0145,
+                3: 0.012,
+                4: 0.0095,
+                5: 0.007,
+              },
+              pv_employee_saxony_table: {
+                0: 0.028,
+                1: 0.022,
+                2: 0.0195,
+                3: 0.017,
+                4: 0.0145,
+                5: 0.012,
+              },
             },
           },
         };
@@ -1507,11 +1541,12 @@
         }
 
         function solidarityAnnual(incomeTax, splittingFactor, model) {
-          // Simplified: fully exempt under a tax-amount threshold, then 5.5% afterwards.
           const t = model.tax;
           const threshold = t.soli_exempt_tax * splittingFactor;
           if (incomeTax <= threshold) return 0;
-          return 0.055 * incomeTax;
+          const full = 0.055 * incomeTax;
+          const mitigated = 0.119 * (incomeTax - threshold);
+          return Math.min(full, mitigated);
         }
 
         function taxClassFactor(taxClass) {
@@ -1561,11 +1596,14 @@
 
           const kvRateEmployee = s.kv_employee_base + zusatzPct / 2;
           let pvRateEmployee = 0;
-          if (s.pv_employee_table && state !== "Sachsen") {
+          if (state === "Sachsen" && s.pv_employee_saxony_table) {
+            const k = Math.min(5, childrenU25);
+            pvRateEmployee = s.pv_employee_saxony_table[k] ?? s.pv_employee_saxony;
+            if (k === 0 && age > 0 && age < 23) pvRateEmployee = s.pv_employee_saxony_table[1] ?? s.pv_employee_saxony;
+          } else if (s.pv_employee_table && state !== "Sachsen") {
             const k = Math.min(5, childrenU25);
             pvRateEmployee = s.pv_employee_table[k] ?? s.pv_employee;
-            // Rough nuance: childless surcharge typically from age 23+.
-            if (k === 0 && age > 0 && age < 23) pvRateEmployee = s.pv_employee_table[1] ?? 0.017;
+            if (k === 0 && age > 0 && age < 23) pvRateEmployee = s.pv_employee_table[1] ?? s.pv_employee;
           } else {
             const pvBase = state === "Sachsen" ? s.pv_employee_saxony : s.pv_employee;
             const applyChildless = childrenU25 === 0 && (age === 0 || age >= 23);
