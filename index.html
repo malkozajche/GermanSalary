@@ -491,7 +491,7 @@
       }
       .line {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: 1fr auto auto;
         align-items: center;
         gap: 12px;
       }
@@ -511,6 +511,11 @@
       .line .v {
         font-variant-numeric: tabular-nums;
         font-size: 13px;
+        text-align: right;
+      }
+      .line .v.monthly {
+        color: var(--muted);
+        font-size: 12px;
       }
       .bar {
         height: 8px;
@@ -1712,14 +1717,15 @@
           return clamp(value / grossAnnual, 0, 1);
         }
 
-        function line(label, valueAnnual, grossAnnual, fillClass = "") {
+        function line(label, valueAnnual, valueMonthly, grossAnnual, fillClass = "") {
           const pct = pctOfGross(valueAnnual, grossAnnual);
           const pctLabel = fmtPct.format(pct);
           const div = document.createElement("div");
           div.innerHTML = `
             <div class="line">
               <div class="k"><span>${label}</span></div>
-              <div class="v">${fmtEUR.format(valueAnnual)} <span style="color: var(--muted)">(${pctLabel})</span></div>
+              <div class="v monthly">${fmtEUR.format(valueMonthly)} <span style="color: var(--muted); font-size: 11px;">/mo</span></div>
+              <div class="v">${fmtEUR.format(valueAnnual)} <span style="color: var(--muted)">/yr (${pctLabel})</span></div>
             </div>
             <div class="bar" aria-hidden="true"><div class="fill ${fillClass}" style="width:${(pct * 100).toFixed(
               1
@@ -1751,33 +1757,33 @@
 
           els.breakdown.replaceChildren();
           els.breakdown.appendChild(
-            line("Net pay (cash)", r.annual.netCash, gA, "green")
+            line("Net pay (cash)", r.annual.netCash, r.monthly.netCash, gA, "green")
           );
           if (r.inputs.benefitAnnual > 0) {
             els.breakdown.appendChild(
-              line("Benefit in kind (non-cash)", r.inputs.benefitAnnual, gA, "green")
+              line("Benefit in kind (non-cash)", r.inputs.benefitAnnual, r.inputs.benefitMonthly, gA, "green")
             );
           }
           els.breakdown.appendChild(
-            line("Income tax (ESt) – estimate", r.annual.tax, gA, "amber")
+            line("Income tax (ESt) – estimate", r.annual.tax, r.annual.tax / 12, gA, "amber")
           );
           els.breakdown.appendChild(
-            line("Solidarity surcharge (Soli) – estimate", r.annual.soli, gA, "")
+            line("Solidarity surcharge (Soli) – estimate", r.annual.soli, r.annual.soli / 12, gA, "")
           );
           els.breakdown.appendChild(
-            line("Church tax (Kirchensteuer)", r.annual.church, gA, "")
+            line("Church tax (Kirchensteuer)", r.annual.church, r.annual.church / 12, gA, "")
           );
           els.breakdown.appendChild(
-            line("Health insurance (KV) – employee", r.annual.kv, gA, "")
+            line("Health insurance (KV) – employee", r.annual.kv, r.monthly.kv, gA, "")
           );
           els.breakdown.appendChild(
-            line("Care insurance (PV) – employee", r.annual.pv, gA, "")
+            line("Care insurance (PV) – employee", r.annual.pv, r.monthly.pv, gA, "")
           );
           els.breakdown.appendChild(
-            line("Pension insurance (RV) – employee", r.annual.rv, gA, "")
+            line("Pension insurance (RV) – employee", r.annual.rv, r.monthly.rv, gA, "")
           );
           els.breakdown.appendChild(
-            line("Unemployment insurance (AV) – employee", r.annual.av, gA, "")
+            line("Unemployment insurance (AV) – employee", r.annual.av, r.monthly.av, gA, "")
           );
 
           // Private health: hide zusatz input UX-wise? keep visible but it won't affect kv.
