@@ -2,6 +2,13 @@
 
 A clean, modern **single-page** German salary calculator with **tooltips**, **dark mode**, and a live **deduction breakdown**.
 
+## Exact mode (matches brutto-netto-rechner.info)
+
+The page now supports an **Exact** engine that embeds the original calculator from `brutto-netto-rechner.info` in an iframe and auto-syncs your inputs via a standard form POST.
+
+- This is the only way to guarantee **1:1 identical results** without re-implementing the full official payroll/tax logic.
+- Requires an internet connection and that the upstream site remains available/embeddable.
+
 ## Run it
 
 - Open `index.html` in your browser (double-click or drag into a browser), **or**

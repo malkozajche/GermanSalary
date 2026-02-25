@@ -117,6 +117,11 @@
       .pill small {
         color: var(--muted);
       }
+      .pill select {
+        width: auto;
+        padding: 8px 10px;
+        border-radius: 999px;
+      }
       .toggle {
         position: relative;
         width: 44px;
@@ -541,6 +546,14 @@
         gap: 10px;
         padding: 0 16px 16px;
       }
+      .frame {
+        width: 100%;
+        height: min(980px, 72vh);
+        min-height: 640px;
+        border: 0;
+        border-radius: 14px;
+        background: var(--panel2);
+      }
       .btn {
         border: 1px solid var(--border);
         background: var(--panel2);
@@ -709,6 +722,13 @@
         </div>
 
         <div class="controls">
+          <div class="pill" title="Choose calculation engine">
+            <small>Engine</small>
+            <select id="engine" aria-label="Calculation engine">
+              <option value="exact" selected>Exact</option>
+              <option value="local">Local</option>
+            </select>
+          </div>
           <div class="pill" title="Theme">
             <small>Theme</small>
             <button
@@ -729,7 +749,7 @@
         <section class="card" aria-label="Inputs">
           <div class="head">
             <h2>Inputs</h2>
-            <p class="meta">Live-updating • no sign-up • local only</p>
+            <p class="meta">Live-updating • no sign-up</p>
           </div>
           <div class="body">
             <form id="calcForm" autocomplete="off">
@@ -1112,36 +1132,94 @@
             <h2>Results</h2>
             <p class="meta" id="resultMeta">—</p>
           </div>
-          <div class="resultHero">
-            <div>
-              <div class="subRow">
-                <span class="badge">
-                  <b id="netMonthly">—</b>
-                  <span>/ month net</span>
-                </span>
-                <span class="badge">
-                  <b id="netAnnual">—</b>
-                  <span>/ year net</span>
-                </span>
-                <span class="badge" id="benefitBadge" hidden>
-                  <b id="netMonthlyTotal">—</b>
-                  <span>/ month incl. benefit</span>
-                </span>
+          <div id="localResults">
+            <div class="resultHero">
+              <div>
+                <div class="subRow">
+                  <span class="badge">
+                    <b id="netMonthly">—</b>
+                    <span>/ month net</span>
+                  </span>
+                  <span class="badge">
+                    <b id="netAnnual">—</b>
+                    <span>/ year net</span>
+                  </span>
+                  <span class="badge" id="benefitBadge" hidden>
+                    <b id="netMonthlyTotal">—</b>
+                    <span>/ month incl. benefit</span>
+                  </span>
+                </div>
+                <div class="big" id="headline">—</div>
+                <div class="subRow" id="subtitle">—</div>
               </div>
-              <div class="big" id="headline">—</div>
-              <div class="subRow" id="subtitle">—</div>
+            </div>
+            <div class="divider"></div>
+            <div class="breakdown" id="breakdown"></div>
+            <div class="actions">
+              <button class="btn primary" id="copyBtn" type="button">
+                Copy summary
+              </button>
+              <button class="btn" id="shareBtn" type="button">Copy link</button>
+              <button class="btn danger" id="resetBtn" type="button">
+                Reset
+              </button>
             </div>
           </div>
-          <div class="divider"></div>
-          <div class="breakdown" id="breakdown"></div>
-          <div class="actions">
-            <button class="btn primary" id="copyBtn" type="button">
-              Copy summary
-            </button>
-            <button class="btn" id="shareBtn" type="button">Copy link</button>
-            <button class="btn danger" id="resetBtn" type="button">
-              Reset
-            </button>
+
+          <div id="exactResults" class="breakdown" hidden>
+            <div class="line">
+              <div class="k">
+                <span>Exact engine</span>
+              </div>
+              <div class="v">
+                brutto-netto-rechner.info
+              </div>
+            </div>
+            <div class="actions" style="padding: 0; margin-top: 2px">
+              <button class="btn primary" id="openExactBtn" type="button">
+                Open in new tab
+              </button>
+              <button class="btn" id="shareBtnExact" type="button">Copy link</button>
+              <button class="btn danger" id="resetBtnExact" type="button">
+                Reset
+              </button>
+            </div>
+            <iframe
+              id="exactFrame"
+              name="exactFrame"
+              class="frame"
+              title="Brutto-Netto-Rechner (embedded)"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+            <form
+              id="exactForm"
+              method="post"
+              action="https://www.brutto-netto-rechner.info/index.php"
+              target="exactFrame"
+              class="srOnly"
+            >
+              <input type="hidden" name="f_start" value="1" />
+              <input type="hidden" name="ok" value="1" />
+              <input type="hidden" name="f_bruttolohn" id="bnr_brutto" value="" />
+              <input type="hidden" name="f_abrechnungszeitraum" id="bnr_zeitraum" value="" />
+              <input type="hidden" name="f_geld_werter_vorteil" id="bnr_gwv" value="" />
+              <input type="hidden" name="f_abrechnungsjahr" id="bnr_jahr" value="" />
+              <input type="hidden" name="f_steuerfreibetrag" id="bnr_freibetrag" value="" />
+              <input type="hidden" name="f_steuerklasse" id="bnr_steuerklasse" value="" />
+              <input type="hidden" name="f_kirche" id="bnr_kirche" value="" />
+              <input type="hidden" name="f_bundesland" id="bnr_bundesland" value="" />
+              <input type="hidden" name="f_alter" id="bnr_alter" value="" />
+              <input type="hidden" name="f_kinder" id="bnr_kinder" value="" />
+              <input type="hidden" name="f_kinderfreibetrag" id="bnr_kfb" value="" />
+              <input type="hidden" name="f_kinder_anz" id="bnr_kinder_u25" value="" />
+              <input type="hidden" name="f_krankenversicherung" id="bnr_kv_art" value="" />
+              <input type="hidden" name="f_private_kv" id="bnr_pkv" value="" />
+              <input type="hidden" name="f_arbeitgeberzuschuss_pkv" id="bnr_pkv_ag" value="ja" />
+              <input type="hidden" name="f_KVZ" id="bnr_kvz" value="" />
+              <input type="hidden" name="f_rentenversicherung" id="bnr_rv" value="" />
+              <input type="hidden" name="f_arbeitslosenversicherung" id="bnr_av" value="" />
+            </form>
           </div>
         </aside>
       </div>
@@ -1479,6 +1557,7 @@
           pkvPremium: $("pkvPremium"),
           pkvCareMode: $("pkvCareMode"),
           themeToggle: $("themeToggle"),
+          engine: $("engine"),
           netMonthly: $("netMonthly"),
           netAnnual: $("netAnnual"),
           netMonthlyTotal: $("netMonthlyTotal"),
@@ -1491,6 +1570,12 @@
           copyBtn: $("copyBtn"),
           shareBtn: $("shareBtn"),
           resetBtn: $("resetBtn"),
+          localResults: $("localResults"),
+          exactResults: $("exactResults"),
+          exactForm: $("exactForm"),
+          openExactBtn: $("openExactBtn"),
+          shareBtnExact: $("shareBtnExact"),
+          resetBtnExact: $("resetBtnExact"),
         };
 
         // Track if the user intentionally set a value (so model switches don't overwrite it).
@@ -1514,6 +1599,25 @@
           const n = Number(v);
           return Number.isFinite(n) ? n : 0;
         }
+
+        const BNR_STATE = {
+          "Baden-Württemberg": "baden-wuerttemberg",
+          Bayern: "bayern",
+          Berlin: "berlin",
+          Brandenburg: "brandenburg",
+          Bremen: "bremen",
+          Hamburg: "hamburg",
+          Hessen: "hessen",
+          "Mecklenburg-Vorpommern": "mecklenburg-vorpommern",
+          Niedersachsen: "niedersachsen",
+          "Nordrhein-Westfalen": "nordrhein-westfalen",
+          "Rheinland-Pfalz": "rheinland-pfalz",
+          Saarland: "saarland",
+          Sachsen: "sachsen",
+          "Sachsen-Anhalt": "sachsen-anhalt",
+          "Schleswig-Holstein": "schleswig-holstein",
+          Thüringen: "thueringen",
+        };
 
         function setSwitch(el, checked) {
           el.setAttribute("aria-checked", checked ? "true" : "false");
@@ -1728,7 +1832,7 @@
           return div;
         }
 
-        function render() {
+        function renderLocal() {
           const r = compute();
           const gA = r.inputs.grossAnnual;
 
@@ -1784,8 +1888,84 @@
           els.privateRow.hidden = !getSwitch(els.isPrivate);
         }
 
+        let exactTimer = null;
+        function setHidden(name, value) {
+          const el = els.exactForm?.querySelector?.(`[name="${name}"]`);
+          if (el) el.value = value;
+        }
+
+        function roundToHalf(x) {
+          return Math.round(x * 2) / 2;
+        }
+
+        function renderExact() {
+          // Map our inputs to brutto-netto-rechner.info's form field names.
+          const gross = Math.max(0, parseNum(els.gross.value));
+          const period = els.period.value === "year" ? "jahr" : "monat";
+          const benefitMonthly = Math.max(0, parseNum(els.benefit.value));
+          const year = String(els.year.value || "2026");
+          const allowance = Math.max(0, parseNum(els.allowance.value));
+          const taxClass = String(Number(els.taxClass.value || "1"));
+          const stateSlug = BNR_STATE[els.state.value] || "berlin";
+          const age = String(Math.max(0, Math.round(parseNum(els.age.value))));
+          const church = getSwitch(els.churchTax) ? "ja" : "nein";
+          const isPrivate = getSwitch(els.isPrivate);
+          const pkvPremium = String(Math.max(0, parseNum(els.pkvPremium.value)));
+          const zusatz = String(Math.max(0, parseNum(els.zusatz.value)));
+          const rv = els.rvMode.value === "off" ? "nicht_pflichtversichert" : "pflichtversichert";
+          const av = els.avMode.value === "off" ? "nicht_pflichtversichert" : "pflichtversichert";
+
+          const childrenTotal = Math.max(0, Math.round(parseNum(els.childrenTotal.value)));
+          const childrenU25 = clamp(Math.max(0, Math.round(parseNum(els.childrenU25.value))), 0, 5);
+          const kfbRaw = Math.max(0, parseNum(els.kinderFreibetrag.value));
+          const kfb = clamp(roundToHalf(kfbRaw), 0, 5);
+          const hasKids = childrenTotal > 0 || childrenU25 > 0 || kfb > 0;
+
+          setHidden("f_bruttolohn", String(gross));
+          setHidden("f_abrechnungszeitraum", period);
+          setHidden("f_geld_werter_vorteil", String(benefitMonthly));
+          setHidden("f_abrechnungsjahr", year);
+          setHidden("f_steuerfreibetrag", String(allowance));
+          setHidden("f_steuerklasse", taxClass);
+          setHidden("f_kirche", church);
+          setHidden("f_bundesland", stateSlug);
+          setHidden("f_alter", age);
+          setHidden("f_kinder", hasKids ? "ja" : "nein");
+          setHidden("f_kinderfreibetrag", String(kfb));
+          setHidden("f_kinder_anz", String(childrenU25));
+          setHidden("f_krankenversicherung", isPrivate ? "privat_versichert" : "pflichtversichert");
+          setHidden("f_private_kv", pkvPremium);
+          setHidden("f_KVZ", zusatz);
+          setHidden("f_rentenversicherung", rv);
+          setHidden("f_arbeitslosenversicherung", av);
+
+          // Debounced auto-submit to keep it responsive but not spammy.
+          if (exactTimer) window.clearTimeout(exactTimer);
+          exactTimer = window.setTimeout(() => {
+            try {
+              els.exactForm.requestSubmit();
+            } catch {
+              els.exactForm.submit();
+            }
+          }, 350);
+        }
+
+        function render() {
+          const engine = els.engine?.value || "exact";
+          els.localResults.hidden = engine !== "local";
+          els.exactResults.hidden = engine !== "exact";
+
+          if (engine === "exact") {
+            els.resultMeta.textContent = "Exact • brutto-netto-rechner.info";
+            renderExact();
+            return;
+          }
+          renderLocal();
+        }
+
         function toShareURL() {
           const params = new URLSearchParams();
+          params.set("engine", els.engine?.value || "exact");
           params.set("gross", String(parseNum(els.gross.value)));
           params.set("period", els.period.value);
           params.set("benefit", String(parseNum(els.benefit.value)));
@@ -1815,6 +1995,7 @@
 
         function applyURLParams() {
           const p = new URLSearchParams(location.search);
+          if (p.has("engine")) els.engine.value = p.get("engine") || "exact";
           if (p.has("gross")) els.gross.value = String(p.get("gross") || "");
           if (p.has("period")) {
             const period = p.get("period") || "month";
@@ -1896,6 +2077,10 @@
           // Recompute on any input change
           ["input", "change"].forEach((evt) => {
             $("calcForm").addEventListener(evt, () => render());
+          });
+          els.engine.addEventListener("change", () => {
+            localStorage.setItem("gsc_engine", els.engine.value);
+            render();
           });
 
           // Tooltips: make them work on touch devices
@@ -2013,8 +2198,14 @@
             els.privateRow.hidden = true;
             els.pkvPremium.value = "450";
             els.pkvCareMode.value = "estimate";
+            els.engine.value = "exact";
+            localStorage.setItem("gsc_engine", "exact");
             render();
             history.replaceState({}, "", location.pathname);
+          });
+
+          els.resetBtnExact.addEventListener("click", () => {
+            els.resetBtn.click();
           });
 
           els.copyBtn.addEventListener("click", async () => {
@@ -2070,11 +2261,30 @@
               prompt("Copy this link:", url);
             }
           });
+
+          els.shareBtnExact.addEventListener("click", () => els.shareBtn.click());
+
+          els.openExactBtn.addEventListener("click", () => {
+            // Open the exact calculator results in a new tab (POST).
+            const tmp = els.exactForm.cloneNode(true);
+            tmp.target = "_blank";
+            document.body.appendChild(tmp);
+            try {
+              tmp.requestSubmit();
+            } catch {
+              tmp.submit();
+            }
+            window.setTimeout(() => tmp.remove(), 0);
+          });
         }
 
         initTheme();
         wire();
         applyURLParams();
+        const storedEngine = localStorage.getItem("gsc_engine");
+        if (storedEngine && !new URLSearchParams(location.search).has("engine")) {
+          els.engine.value = storedEngine;
+        }
         render();
       })();
     </script>
