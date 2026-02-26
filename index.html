@@ -7,7 +7,7 @@
       name="description"
       content="German salary (Brutto → Netto) calculator with tooltips. Estimate net pay and deductions."
     />
-    <title>German Salary Calculator (Brutto → Netto)</title>
+    <title data-i18n="page_title">German Salary Calculator (Brutto → Netto)</title>
     <style>
       :root {
         --bg: #0b1220;
@@ -686,6 +686,21 @@
         white-space: nowrap;
         border-width: 0;
       }
+      #langSelect {
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 600;
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+        text-align: center;
+        width: 52px;
+      }
+      #langSelect:focus-visible { box-shadow: var(--ring); }
     </style>
   </head>
   <body>
@@ -703,14 +718,18 @@
             </svg>
           </div>
           <div class="title">
-            <h1>German Salary Calculator</h1>
-            <p>Brutto → Netto estimate with a clean breakdown + tooltips</p>
+            <h1 data-i18n="site_title">German Salary Calculator</h1>
+            <p data-i18n="site_subtitle">Brutto → Netto estimate with a clean breakdown + tooltips</p>
           </div>
         </div>
 
         <div class="controls">
-          <div class="pill" title="Theme">
-            <small>Theme</small>
+          <select id="langSelect" class="pill">
+            <option value="en">EN</option>
+            <option value="bg">BG</option>
+          </select>
+          <div class="pill">
+            <small data-i18n="theme">Theme</small>
             <button
               id="themeToggle"
               class="toggle"
@@ -728,20 +747,20 @@
       <div class="grid">
         <section class="card" aria-label="Inputs">
           <div class="head">
-            <h2>Inputs</h2>
-            <p class="meta">Live-updating • no sign-up • local only</p>
+            <h2 data-i18n="inputs">Inputs</h2>
+            <p class="meta" data-i18n="inputs_meta">Live-updating • no sign-up • local only</p>
           </div>
           <div class="body">
             <form id="calcForm" autocomplete="off">
               <div class="row">
                 <label>
                   <span class="labelLine">
-                    <strong>Gross salary</strong>
+                    <strong data-i18n="gross_salary">Gross salary</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">
                         ?
                       </button>
-                      <span class="tip" role="tooltip">
+                      <span class="tip" role="tooltip" data-i18n-html="tip_gross">
                         <strong>Gross</strong> is your salary before taxes and
                         employee social contributions. This calculator estimates
                         <strong>net pay</strong> after typical German deductions.
@@ -751,6 +770,7 @@
                   <input
                     id="gross"
                     inputmode="decimal"
+                    data-i18n-placeholder="gross_placeholder"
                     placeholder="e.g. 3500"
                     value="3500"
                   />
@@ -758,12 +778,12 @@
 
                 <label>
                   <span class="labelLine">
-                    <strong>Pay period</strong>
+                    <strong data-i18n="pay_period">Pay period</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">
                         ?
                       </button>
-                      <span class="tip" role="tooltip">
+                      <span class="tip" role="tooltip" data-i18n-html="tip_period">
                         Choose whether the gross number is <strong>annual</strong>
                         or <strong>monthly</strong>. Results always show both.
                       </span>
@@ -776,14 +796,14 @@
                         <path d="M3 10h18" stroke="currentColor" stroke-width="2"/>
                         <circle cx="12" cy="16" r="2" fill="currentColor"/>
                       </svg>
-                      <span>Month</span>
+                      <span data-i18n="month">Month</span>
                     </button>
                     <button type="button" class="periodOption" data-value="year" aria-label="Annual">
                       <svg viewBox="0 0 24 24" fill="none">
                         <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
                         <path d="M3 10h18M8 2v4M16 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                       </svg>
-                      <span>Year</span>
+                      <span data-i18n="year">Year</span>
                     </button>
                   </div>
                   <input type="hidden" id="period" value="month" />
@@ -793,48 +813,48 @@
               <div class="row">
                 <label>
                   <span class="labelLine">
-                    <strong>Benefit in kind (monthly)</strong>
+                    <strong data-i18n="benefit_label">Benefit in kind (monthly)</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">?</button>
-                      <span class="tip" role="tooltip">
-                        “Geldwerter Vorteil” (e.g. company car) increases the
+                      <span class="tip" role="tooltip" data-i18n-html="tip_benefit">
+                        "Geldwerter Vorteil" (e.g. company car) increases the
                         <strong>tax</strong> and <strong>social insurance</strong>
-                        bases, but it’s usually <strong>not paid out in cash</strong>.
+                        bases, but it's usually <strong>not paid out in cash</strong>.
                         This calculator treats it as an added monthly gross component
                         for deductions, and reports both <strong>cash net</strong> and
                         <strong>net incl. benefit</strong>.
                       </span>
                     </span>
                   </span>
-                  <input id="benefit" inputmode="decimal" placeholder="e.g. 0" value="0" />
+                  <input id="benefit" inputmode="decimal" data-i18n-placeholder="benefit_placeholder" placeholder="e.g. 0" value="0" />
                 </label>
 
                 <label>
                   <span class="labelLine">
-                    <strong>Annual tax allowance (Freibetrag)</strong>
+                    <strong data-i18n="allowance_label">Annual tax allowance (Freibetrag)</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">?</button>
-                      <span class="tip" role="tooltip">
-                        Optional annual payroll allowance (“Steuerfreibetrag”) that
+                      <span class="tip" role="tooltip" data-i18n-html="tip_allowance">
+                        Optional annual payroll allowance ("Steuerfreibetrag") that
                         reduces the estimated <strong>taxable income</strong>.
                         If you have specific allowances (e.g. child allowance),
                         you can approximate them here.
                       </span>
                     </span>
                   </span>
-                  <input id="allowance" inputmode="decimal" placeholder="e.g. 0" value="0" />
+                  <input id="allowance" inputmode="decimal" data-i18n-placeholder="allowance_placeholder" placeholder="e.g. 0" value="0" />
                 </label>
               </div>
 
               <div class="row">
                 <label>
                   <span class="labelLine">
-                    <strong>Tax year (estimate model)</strong>
+                    <strong data-i18n="tax_year_label">Tax year (estimate model)</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">
                         ?
                       </button>
-                      <span class="tip" role="tooltip">
+                      <span class="tip" role="tooltip" data-i18n-html="tip_tax_year">
                         Uses the official §32a EStG income tax formula for
                         the selected year. Values can differ from official
                         withholding due to many real-world factors (allowances,
@@ -853,12 +873,12 @@
 
                 <label>
                   <span class="labelLine">
-                    <strong>Tax class (Steuerklasse)</strong>
+                    <strong data-i18n="tax_class_label">Tax class (Steuerklasse)</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">
                         ?
                       </button>
-                      <span class="tip" role="tooltip">
+                      <span class="tip" role="tooltip" data-i18n-html="tip_tax_class">
                         Tax class affects <strong>withholding</strong> (monthly
                         payroll). Final annual tax can differ after filing. Here
                         we use a practical approximation:
@@ -882,12 +902,12 @@
               <div class="row">
                 <label>
                   <span class="labelLine">
-                    <strong>Federal state (Bundesland)</strong>
+                    <strong data-i18n="state_label">Federal state (Bundesland)</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">
                         ?
                       </button>
-                      <span class="tip" role="tooltip">
+                      <span class="tip" role="tooltip" data-i18n-html="tip_state">
                         State matters mainly for <strong>church tax</strong>
                         (8% in Bayern/Baden‑Württemberg; 9% elsewhere) and a
                         special split for <strong>care insurance</strong> in
@@ -900,19 +920,16 @@
 
                 <label>
                   <span class="labelLine">
-                    <strong>Children under 25 (PV)</strong>
+                    <strong data-i18n="children_label">Children under 25 (PV)</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">
                         ?
                       </button>
-                      <span class="tip" role="tooltip">
-                        Der Arbeitnehmer-Beitrag zur Pflegeversicherung (PV)
-                        richtet sich nach der Anzahl der Kinder
-                        <strong>unter 25 Jahren</strong>. Der Zusatzbeitrag für
-                        Kinderlose beträgt <strong>0,6%</strong> (ab Alter 23).
-                        Beitragssätze (2025/2026, 3,6% Gesamt): keine Kinder
-                        2,4%, 1 Kind 1,8%, 2 Kinder 1,55%, 3 Kinder 1,3%,
-                        4 Kinder 1,05%, 5+ Kinder 0,8%.
+                      <span class="tip" role="tooltip" data-i18n-html="tip_children">
+                        The employee contribution to care insurance (PV) depends on the number of children
+                        <strong>under 25</strong>. The childless surcharge is <strong>0.6%</strong>
+                        (from age 23). Rates (2025/2026, 3.6% total): no children 2.4%, 1 child 1.8%,
+                        2 children 1.55%, 3 children 1.3%, 4 children 1.05%, 5+ children 0.8%.
                       </span>
                     </span>
                   </span>
@@ -923,11 +940,11 @@
               <div class="row">
                 <label>
                   <span class="labelLine">
-                    <strong>Your age</strong>
+                    <strong data-i18n="age_label">Your age</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">?</button>
-                      <span class="tip" role="tooltip">
-                        Used only for a small PV nuance: the “childless surcharge”
+                      <span class="tip" role="tooltip" data-i18n-html="tip_age">
+                        Used only for a small PV nuance: the "childless surcharge"
                         is typically applied from age <strong>23+</strong>.
                       </span>
                     </span>
@@ -939,11 +956,11 @@
               <div class="row">
                 <label>
                   <span class="labelLine">
-                    <strong>Kinderfreibetrag</strong>
+                    <strong data-i18n="kinderfreibetrag_label">Kinderfreibetrag</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">?</button>
-                      <span class="tip" role="tooltip">
-                        Select the Kinderfreibetrag “shares” in <strong>0.5 steps</strong>
+                      <span class="tip" role="tooltip" data-i18n-html="tip_kinderfreibetrag">
+                        Select the Kinderfreibetrag "shares" in <strong>0.5 steps</strong>
                         (e.g. 0.5, 1.0, 1.5, 2.0). This value is currently not directly
                         modeled; if you want to approximate the impact, use the
                         <strong>Annual tax allowance (Freibetrag)</strong> input above.
@@ -969,10 +986,10 @@
 
                 <label>
                   <span class="labelLine">
-                    <strong>Coverage (RV / AV)</strong>
+                    <strong data-i18n="coverage_label">Coverage (RV / AV)</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">?</button>
-                      <span class="tip" role="tooltip">
+                      <span class="tip" role="tooltip" data-i18n-html="tip_coverage">
                         If you are exempt from statutory pension (RV) or unemployment
                         insurance (AV), you can disable them here.
                       </span>
@@ -980,12 +997,12 @@
                   </span>
                   <div class="row">
                     <select id="rvMode" aria-label="Rentenversicherung">
-                      <option value="on" selected>RV: statutory</option>
-                      <option value="off">RV: exempt</option>
+                      <option value="on" selected data-i18n="rv_statutory">RV: statutory</option>
+                      <option value="off" data-i18n="rv_exempt">RV: exempt</option>
                     </select>
                     <select id="avMode" aria-label="Arbeitslosenversicherung">
-                      <option value="on" selected>AV: statutory</option>
-                      <option value="off">AV: exempt</option>
+                      <option value="on" selected data-i18n="av_statutory">AV: statutory</option>
+                      <option value="off" data-i18n="av_exempt">AV: exempt</option>
                     </select>
                   </div>
                 </label>
@@ -994,12 +1011,12 @@
               <div class="checkRow">
                 <div class="left">
                   <div class="texts">
-                    <p class="t">Church tax (Kirchensteuer)</p>
-                    <p class="d">Adds 8%/9% of income tax (if applicable)</p>
+                    <p class="t" data-i18n="church_title">Church tax (Kirchensteuer)</p>
+                    <p class="d" data-i18n="church_desc">Adds 8%/9% of income tax (if applicable)</p>
                   </div>
                   <span class="tipWrap">
                     <button class="tipBtn" type="button" aria-label="Help">?</button>
-                    <span class="tip" role="tooltip">
+                    <span class="tip" role="tooltip" data-i18n-html="tip_church">
                       If enabled, we add church tax as a percentage of the
                       estimated income tax. (Bayern &amp; Baden‑Württemberg:
                       8%. All other states: 9%.)
@@ -1020,14 +1037,14 @@
               <div class="checkRow">
                 <div class="left">
                   <div class="texts">
-                    <p class="t">Private health insurance (PKV)</p>
-                    <p class="d">If on PKV, enter your monthly premium</p>
+                    <p class="t" data-i18n="pkv_title">Private health insurance (PKV)</p>
+                    <p class="d" data-i18n="pkv_desc">If on PKV, enter your monthly premium</p>
                   </div>
                   <span class="tipWrap">
                     <button class="tipBtn" type="button" aria-label="Help">?</button>
-                    <span class="tip" role="tooltip">
-                      If you’re privately insured, statutory health insurance
-                      contributions don’t apply the same way. This calculator
+                    <span class="tip" role="tooltip" data-i18n-html="tip_pkv">
+                      If you're privately insured, statutory health insurance
+                      contributions don't apply the same way. This calculator
                       uses your entered premium instead of the statutory health
                       formula (still an estimate).
                     </span>
@@ -1047,12 +1064,12 @@
               <div class="row" id="privateRow" hidden>
                 <label>
                   <span class="labelLine">
-                    <strong>PKV monthly premium</strong>
+                    <strong data-i18n="pkv_premium_label">PKV monthly premium</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">
                         ?
                       </button>
-                      <span class="tip" role="tooltip">
+                      <span class="tip" role="tooltip" data-i18n-html="tip_pkv_premium">
                         Enter your personal monthly private health insurance
                         premium (employee share). Example: 450.
                       </span>
@@ -1062,12 +1079,12 @@
                 </label>
                 <label>
                   <span class="labelLine">
-                    <strong>Include care insurance estimate</strong>
+                    <strong data-i18n="care_estimate_label">Include care insurance estimate</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">
                         ?
                       </button>
-                      <span class="tip" role="tooltip">
+                      <span class="tip" role="tooltip" data-i18n-html="tip_care_estimate">
                         Care insurance (Pflegeversicherung) also exists under
                         private insurance, but the real amount depends on your
                         plan. If you enable this, we estimate it using the same
@@ -1076,8 +1093,8 @@
                     </span>
                   </span>
                   <select id="pkvCareMode">
-                    <option value="estimate" selected>Estimate care insurance</option>
-                    <option value="zero">Do not include</option>
+                    <option value="estimate" selected data-i18n="care_estimate_option">Estimate care insurance</option>
+                    <option value="zero" data-i18n="care_zero_option">Do not include</option>
                   </select>
                 </label>
               </div>
@@ -1085,15 +1102,15 @@
               <div class="row">
                 <label>
                   <span class="labelLine">
-                    <strong>Health “Zusatzbeitrag” (%)</strong>
+                    <strong data-i18n="zusatz_label">Health "Zusatzbeitrag" (%)</strong>
                     <span class="tipWrap">
                       <button class="tipBtn" type="button" aria-label="Help">
                         ?
                       </button>
-                      <span class="tip" role="tooltip">
+                      <span class="tip" role="tooltip" data-i18n-html="tip_zusatz">
                         In statutory health insurance, employees typically pay
-                        <strong>half</strong> of the “Zusatzbeitrag”. Enter the
-                        full percentage and we’ll apply half to the employee
+                        <strong>half</strong> of the "Zusatzbeitrag". Enter the
+                        full percentage and we'll apply half to the employee
                         share. The average Zusatzbeitrag is <strong>2.5%</strong>
                         (2025) and <strong>2.9%</strong> (2026) — your actual
                         value depends on your insurer.
@@ -1109,7 +1126,7 @@
 
         <aside class="card" aria-label="Results">
           <div class="head">
-            <h2>Results</h2>
+            <h2 data-i18n="results">Results</h2>
             <p class="meta" id="resultMeta">—</p>
           </div>
           <div class="resultHero">
@@ -1117,15 +1134,15 @@
               <div class="subRow">
                 <span class="badge">
                   <b id="netMonthly">—</b>
-                  <span>/ month net</span>
+                  <span data-i18n="month_net">/ month net</span>
                 </span>
                 <span class="badge">
                   <b id="netAnnual">—</b>
-                  <span>/ year net</span>
+                  <span data-i18n="year_net">/ year net</span>
                 </span>
                 <span class="badge" id="benefitBadge" hidden>
                   <b id="netMonthlyTotal">—</b>
-                  <span>/ month incl. benefit</span>
+                  <span data-i18n="month_incl_benefit">/ month incl. benefit</span>
                 </span>
               </div>
               <div class="big" id="headline">—</div>
@@ -1135,90 +1152,86 @@
           <div class="divider"></div>
           <div class="breakdown" id="breakdown"></div>
           <div class="actions">
-            <button class="btn primary" id="copyBtn" type="button">
+            <button class="btn primary" id="copyBtn" type="button" data-i18n="copy_summary">
               Copy summary
             </button>
-            <button class="btn" id="shareBtn" type="button">Copy link</button>
-            <button class="btn danger" id="resetBtn" type="button">
+            <button class="btn" id="shareBtn" type="button" data-i18n="copy_link">Copy link</button>
+            <button class="btn danger" id="resetBtn" type="button" data-i18n="reset">
               Reset
             </button>
           </div>
         </aside>
       </div>
 
-      <section class="card stack" aria-label="German notes (2026)">
+      <section class="card stack" aria-label="Info notes">
         <div class="head">
-          <h2>Info (Deutsch) – Hinweise &amp; Werte</h2>
-          <p class="meta">Praktische Erklärungen (2026) • kompakt • mobilfreundlich</p>
+          <h2 data-i18n="info_title">Info – Notes &amp; Values</h2>
+          <p class="meta" data-i18n="info_meta">Practical explanations (2026) • compact • mobile-friendly</p>
         </div>
         <div class="body prose">
           <details class="faq">
             <summary>
-              <span class="q">Mehrere Arbeitgeber / Steuerklasse VI</span>
+              <span class="q" data-i18n="faq1_q">Multiple employers / Tax class VI</span>
               <span class="chev" aria-hidden="true">▾</span>
             </summary>
-            <div class="a">
+            <div class="a" data-i18n-html="faq1_a">
               <p>
-                Steuerklasse <strong>VI</strong> gilt häufig, wenn Sie
-                <strong>mehrere Einkommen</strong> beziehen und mindestens ein
-                weiteres Arbeitsverhältnis über der aktuellen
-                <strong>Minijob‑Verdienstgrenze</strong> liegt (z.&nbsp;B. &gt;
-                603&nbsp;€).
+                Tax class <strong>VI</strong> typically applies when you have
+                <strong>multiple incomes</strong> and at least one additional
+                employment is above the current
+                <strong>mini-job income limit</strong> (e.g. &gt; 603&nbsp;€).
               </p>
               <p>
-                Ihre <strong>Lohnsteuerklasse</strong> sehen Sie in der
-                Gehaltsabrechnung. Der Arbeitgeber ruft die elektronischen
-                Lohnsteuerabzugsmerkmale (<strong>ELStAM</strong>) über Ihre
-                Steuer‑ID beim Finanzamt ab.
+                You can find your <strong>tax class</strong> on your payslip.
+                Your employer retrieves the electronic wage tax deduction
+                features (<strong>ELStAM</strong>) from the tax office via
+                your tax ID.
               </p>
             </div>
           </details>
 
           <details class="faq">
             <summary>
-              <span class="q">Krankenversicherung (KV) &amp; Zusatzbeitrag</span>
+              <span class="q" data-i18n="faq2_q">Health insurance (KV) &amp; Zusatzbeitrag</span>
               <span class="chev" aria-hidden="true">▾</span>
             </summary>
-            <div class="a">
+            <div class="a" data-i18n-html="faq2_a">
               <p>
-                Die angegebenen KV‑Sätze können Arbeitnehmer‑ und Arbeitgeberanteil
-                beinhalten. Der <strong>Zusatzbeitrag</strong> hängt von Ihrer
-                Krankenkasse ab. Seit 2019 tragen Arbeitgeber und Arbeitnehmer den
-                Zusatzbeitrag grundsätzlich je zur Hälfte.
+                The stated KV rates may include both employee and employer shares.
+                The <strong>Zusatzbeitrag</strong> depends on your health insurer.
+                Since 2019, employers and employees share the Zusatzbeitrag equally.
               </p>
               <p>
-                In diesem Rechner wird für die KV‑Berechnung die
-                <strong>Arbeitnehmerhälfte</strong> des eingegebenen
-                Zusatzbeitrags verwendet.
+                This calculator uses the <strong>employee's half</strong> of the
+                entered Zusatzbeitrag for the KV calculation.
               </p>
             </div>
           </details>
 
           <details class="faq">
             <summary>
-              <span class="q">Beitragsbemessungsgrenzen (BBG) 2026</span>
+              <span class="q" data-i18n="faq3_q">Contribution assessment ceilings (BBG) 2026</span>
               <span class="chev" aria-hidden="true">▾</span>
             </summary>
             <div class="a">
-              <p>
-                Bis zur Beitragsbemessungsgrenze werden Beiträge zur gesetzlichen
-                Sozialversicherung prozentual erhoben.
+              <p data-i18n="faq3_a_intro">
+                Social insurance contributions are charged as a percentage up to the contribution assessment ceiling.
               </p>
               <div class="kvTable" aria-label="BBG 2026 summary">
                 <div class="row2">
-                  <div class="k">Kranken- &amp; Pflegeversicherung (monatlich)</div>
+                  <div class="k" data-i18n="faq3_kv_monthly">Health &amp; care insurance (monthly)</div>
                   <div class="v">5.812,50 €</div>
                 </div>
                 <div class="row2">
-                  <div class="k">Kranken- &amp; Pflegeversicherung (jährlich)</div>
+                  <div class="k" data-i18n="faq3_kv_annual">Health &amp; care insurance (annual)</div>
                   <div class="v">69.750 €</div>
                 </div>
                 <div class="row2">
-                  <div class="k">Renten- &amp; Arbeitslosenversicherung (monatlich)</div>
+                  <div class="k" data-i18n="faq3_rv_monthly">Pension &amp; unemployment insurance (monthly)</div>
                   <div class="v">8.450 €</div>
                 </div>
                 <div class="row2">
-                  <div class="k">Renten- &amp; Arbeitslosenversicherung (jährlich)</div>
+                  <div class="k" data-i18n="faq3_rv_annual">Pension &amp; unemployment insurance (annual)</div>
                   <div class="v">101.400 €</div>
                 </div>
               </div>
@@ -1227,59 +1240,59 @@
 
           <details class="faq">
             <summary>
-              <span class="q">Versicherungspflichtgrenze (PKV) 2026</span>
+              <span class="q" data-i18n="faq4_q">Insurance threshold (PKV) 2026</span>
               <span class="chev" aria-hidden="true">▾</span>
             </summary>
-            <div class="a">
+            <div class="a" data-i18n-html="faq4_a">
               <p>
-                Ab der Versicherungspflichtgrenze kann ein Arbeitnehmer unter
-                bestimmten Voraussetzungen aus der GKV austreten und in eine
-                <strong>private Krankenversicherung</strong> (PKV) wechseln.
-                Häufig muss das Einkommen die Grenze <strong>drei Jahre in
-                Folge</strong> überschreiten (Details je nach Situation).
+                Above the compulsory insurance threshold, an employee may under
+                certain conditions opt out of statutory health insurance and switch
+                to <strong>private health insurance</strong> (PKV). Often the income
+                must exceed the threshold for <strong>three consecutive years</strong>
+                (details vary by situation).
               </p>
               <p>
-                Für 2026 beträgt die Versicherungspflichtgrenze
-                <strong>77.400 €</strong> pro Jahr.
+                For 2026, the compulsory insurance threshold is
+                <strong>77,400&nbsp;€</strong> per year.
               </p>
             </div>
           </details>
 
           <details class="faq">
             <summary>
-              <span class="q">Pflegeversicherung (PV) – Arbeitnehmeranteil</span>
+              <span class="q" data-i18n="faq5_q">Care insurance (PV) – employee share</span>
               <span class="chev" aria-hidden="true">▾</span>
             </summary>
             <div class="a">
-              <p>
-                Seit dem 1. Januar 2025 beträgt der Beitragssatz zur Pflegeversicherung
-                <strong>3,6%</strong> (zuvor 3,4% seit Juli 2023). Der Zusatzbeitrag für
-                Kinderlose beträgt <strong>0,6%</strong>. Der Beitragssatz richtet
-                sich auch an der Anzahl der Kinder unter 25 Jahren.
+              <p data-i18n-html="faq5_a_intro">
+                Since January 1, 2025, the care insurance contribution rate is
+                <strong>3.6%</strong> (previously 3.4% since July 2023). The childless
+                surcharge is <strong>0.6%</strong>. The rate also depends on the number
+                of children under 25.
               </p>
-              <p>
-                Demnach betragen die Beitragssätze für Arbeitnehmer (außer Bundesland Sachsen):
+              <p data-i18n="faq5_a_mid">
+                Employee contribution rates (except Sachsen):
               </p>
               <div class="kvTable" aria-label="PV employee rates">
-                <div class="row2"><div class="k">Keine Kinder (ab 23 J.)</div><div class="v">2,4%</div></div>
-                <div class="row2"><div class="k">1 Kind</div><div class="v">1,8% (auch wenn das Kind älter als 24 Jahre ist)</div></div>
-                <div class="row2"><div class="k">2 Kinder</div><div class="v">1,55%</div></div>
-                <div class="row2"><div class="k">3 Kinder</div><div class="v">1,3%</div></div>
-                <div class="row2"><div class="k">4 Kinder</div><div class="v">1,05%</div></div>
-                <div class="row2"><div class="k">5 und mehr Kinder</div><div class="v">0,8%</div></div>
+                <div class="row2"><div class="k" data-i18n="faq5_0kids">No children (age 23+)</div><div class="v">2,4%</div></div>
+                <div class="row2"><div class="k" data-i18n="faq5_1kid">1 child</div><div class="v" data-i18n="faq5_1kid_note">1.8% (even if the child is older than 24)</div></div>
+                <div class="row2"><div class="k" data-i18n="faq5_2kids">2 children</div><div class="v">1,55%</div></div>
+                <div class="row2"><div class="k" data-i18n="faq5_3kids">3 children</div><div class="v">1,3%</div></div>
+                <div class="row2"><div class="k" data-i18n="faq5_4kids">4 children</div><div class="v">1,05%</div></div>
+                <div class="row2"><div class="k" data-i18n="faq5_5kids">5 or more children</div><div class="v">0,8%</div></div>
               </div>
-              <p>
-                Hinweis: In <strong>Sachsen</strong> gilt eine besondere Aufteilung,
-                daher kann der Arbeitnehmeranteil abweichen. Dieser Rechner nähert
-                Sachsen vereinfacht an.
-              </p>
+              <div data-i18n-html="faq5_a_end">
+                <p>Note: In <strong>Sachsen</strong> a special split applies, so
+                the employee share may differ. This calculator approximates Sachsen
+                accordingly.</p>
+              </div>
             </div>
           </details>
         </div>
       </section>
 
       <footer>
-        <div class="note">
+        <div class="note" data-i18n-html="footer_note">
           This is a <strong>fast estimate</strong> (not payroll software). If you
           need exact results, use an official withholding calculator or consult a
           tax professional.
@@ -1290,6 +1303,237 @@
 
     <script>
       (() => {
+        const I18N = {
+          en: {
+            page_title: "German Salary Calculator (Brutto → Netto)",
+            site_title: "German Salary Calculator",
+            site_subtitle: "Brutto → Netto estimate with a clean breakdown + tooltips",
+            theme: "Theme",
+            inputs: "Inputs",
+            inputs_meta: "Live-updating \u2022 no sign-up \u2022 local only",
+            gross_salary: "Gross salary",
+            gross_placeholder: "e.g. 3500",
+            tip_gross: '<strong>Gross</strong> is your salary before taxes and employee social contributions. This calculator estimates <strong>net pay</strong> after typical German deductions.',
+            pay_period: "Pay period",
+            tip_period: 'Choose whether the gross number is <strong>annual</strong> or <strong>monthly</strong>. Results always show both.',
+            month: "Month",
+            year: "Year",
+            benefit_label: "Benefit in kind (monthly)",
+            benefit_placeholder: "e.g. 0",
+            tip_benefit: '\u201cGeldwerter Vorteil\u201d (e.g. company car) increases the <strong>tax</strong> and <strong>social insurance</strong> bases, but it\u2019s usually <strong>not paid out in cash</strong>. This calculator treats it as an added monthly gross component for deductions, and reports both <strong>cash net</strong> and <strong>net incl. benefit</strong>.',
+            allowance_label: "Annual tax allowance (Freibetrag)",
+            allowance_placeholder: "e.g. 0",
+            tip_allowance: 'Optional annual payroll allowance (\u201cSteuerfreibetrag\u201d) that reduces the estimated <strong>taxable income</strong>. If you have specific allowances (e.g. child allowance), you can approximate them here.',
+            tax_year_label: "Tax year (estimate model)",
+            tip_tax_year: 'Uses the official \u00a732a EStG income tax formula for the selected year. Values can differ from official withholding due to many real-world factors (allowances, bonuses, exact insurance settings, etc.). Each model uses the correct <strong>tax zones</strong>, <strong>BBG</strong>, and <strong>social insurance rates</strong> for that year.',
+            tax_class_label: "Tax class (Steuerklasse)",
+            tip_tax_class: 'Tax class affects <strong>withholding</strong> (monthly payroll). Final annual tax can differ after filing. Here we use a practical approximation: <strong>I/IV</strong> baseline, <strong>II</strong> with single-parent relief, <strong>III</strong> married splitting, <strong>V/VI</strong> higher withholding.',
+            state_label: "Federal state (Bundesland)",
+            tip_state: 'State matters mainly for <strong>church tax</strong> (8% in Bayern/Baden\u2011W\u00fcrttemberg; 9% elsewhere) and a special split for <strong>care insurance</strong> in Sachsen (employee share is higher).',
+            children_label: "Children under 25 (PV)",
+            tip_children: 'The employee contribution to care insurance (PV) depends on the number of children <strong>under 25</strong>. The childless surcharge is <strong>0.6%</strong> (from age 23). Rates (2025/2026, 3.6% total): no children 2.4%, 1 child 1.8%, 2 children 1.55%, 3 children 1.3%, 4 children 1.05%, 5+ children 0.8%.',
+            age_label: "Your age",
+            tip_age: 'Used only for a small PV nuance: the \u201cchildless surcharge\u201d is typically applied from age <strong>23+</strong>.',
+            kinderfreibetrag_label: "Kinderfreibetrag",
+            tip_kinderfreibetrag: 'Select the Kinderfreibetrag \u201cshares\u201d in <strong>0.5 steps</strong> (e.g. 0.5, 1.0, 1.5, 2.0). This value is currently not directly modeled; if you want to approximate the impact, use the <strong>Annual tax allowance (Freibetrag)</strong> input above.',
+            coverage_label: "Coverage (RV / AV)",
+            tip_coverage: 'If you are exempt from statutory pension (RV) or unemployment insurance (AV), you can disable them here.',
+            rv_statutory: "RV: statutory",
+            rv_exempt: "RV: exempt",
+            av_statutory: "AV: statutory",
+            av_exempt: "AV: exempt",
+            church_title: "Church tax (Kirchensteuer)",
+            church_desc: "Adds 8%/9% of income tax (if applicable)",
+            tip_church: 'If enabled, we add church tax as a percentage of the estimated income tax. (Bayern &amp; Baden\u2011W\u00fcrttemberg: 8%. All other states: 9%.)',
+            pkv_title: "Private health insurance (PKV)",
+            pkv_desc: "If on PKV, enter your monthly premium",
+            tip_pkv: 'If you\u2019re privately insured, statutory health insurance contributions don\u2019t apply the same way. This calculator uses your entered premium instead of the statutory health formula (still an estimate).',
+            pkv_premium_label: "PKV monthly premium",
+            tip_pkv_premium: 'Enter your personal monthly private health insurance premium (employee share). Example: 450.',
+            care_estimate_label: "Include care insurance estimate",
+            tip_care_estimate: 'Care insurance (Pflegeversicherung) also exists under private insurance, but the real amount depends on your plan. If you enable this, we estimate it using the same care-rate model as statutory.',
+            care_estimate_option: "Estimate care insurance",
+            care_zero_option: "Do not include",
+            zusatz_label: 'Health "Zusatzbeitrag" (%)',
+            tip_zusatz: 'In statutory health insurance, employees typically pay <strong>half</strong> of the \u201cZusatzbeitrag\u201d. Enter the full percentage and we\u2019ll apply half to the employee share. The average Zusatzbeitrag is <strong>2.5%</strong> (2025) and <strong>2.9%</strong> (2026) \u2014 your actual value depends on your insurer.',
+            results: "Results",
+            month_net: "/ month net",
+            year_net: "/ year net",
+            month_incl_benefit: "/ month incl. benefit",
+            copy_summary: "Copy summary",
+            copied: "Copied!",
+            copy_link: "Copy link",
+            link_copied: "Link copied!",
+            reset: "Reset",
+            net_pay: "Net pay (cash)",
+            benefit_noncash: "Benefit in kind (non-cash)",
+            income_tax: "Income tax (ESt) \u2013 estimate",
+            soli: "Solidarity surcharge (Soli) \u2013 estimate",
+            church_tax_line: "Church tax (Kirchensteuer)",
+            health_ins: "Health insurance (KV) \u2013 employee",
+            care_ins: "Care insurance (PV) \u2013 employee",
+            pension_ins: "Pension insurance (RV) \u2013 employee",
+            unemp_ins: "Unemployment insurance (AV) \u2013 employee",
+            gross_per_month: "gross/month",
+            total_deductions: "total deductions",
+            incl_benefit: "incl.",
+            noncash_benefit_month: "non-cash benefit/month",
+            summary_title: "German Salary Calculator \u2014 summary",
+            footer_note: 'This is a <strong>fast estimate</strong> (not payroll software). If you need exact results, use an official withholding calculator or consult a tax professional.',
+            info_title: "Info \u2013 Notes & Values",
+            info_meta: "Practical explanations (2026) \u2022 compact \u2022 mobile-friendly",
+            faq1_q: "Multiple employers / Tax class VI",
+            faq1_a: '<p>Tax class <strong>VI</strong> typically applies when you have <strong>multiple incomes</strong> and at least one additional employment is above the current <strong>mini-job income limit</strong> (e.g. > 603\u00a0\u20ac).</p><p>You can find your <strong>tax class</strong> on your payslip. Your employer retrieves the electronic wage tax deduction features (<strong>ELStAM</strong>) from the tax office via your tax ID.</p>',
+            faq2_q: "Health insurance (KV) & Zusatzbeitrag",
+            faq2_a: '<p>The stated KV rates may include both employee and employer shares. The <strong>Zusatzbeitrag</strong> depends on your health insurer. Since 2019, employers and employees share the Zusatzbeitrag equally.</p><p>This calculator uses the <strong>employee\u2019s half</strong> of the entered Zusatzbeitrag for the KV calculation.</p>',
+            faq3_q: "Contribution assessment ceilings (BBG) 2026",
+            faq3_a_intro: "Social insurance contributions are charged as a percentage up to the contribution assessment ceiling.",
+            faq3_kv_monthly: "Health & care insurance (monthly)",
+            faq3_kv_annual: "Health & care insurance (annual)",
+            faq3_rv_monthly: "Pension & unemployment insurance (monthly)",
+            faq3_rv_annual: "Pension & unemployment insurance (annual)",
+            faq4_q: "Insurance threshold (PKV) 2026",
+            faq4_a: '<p>Above the compulsory insurance threshold, an employee may under certain conditions opt out of statutory health insurance and switch to <strong>private health insurance</strong> (PKV). Often the income must exceed the threshold for <strong>three consecutive years</strong> (details vary by situation).</p><p>For 2026, the compulsory insurance threshold is <strong>77,400\u00a0\u20ac</strong> per year.</p>',
+            faq5_q: "Care insurance (PV) \u2013 employee share",
+            faq5_a_intro: "Since January 1, 2025, the care insurance contribution rate is <strong>3.6%</strong> (previously 3.4% since July 2023). The childless surcharge is <strong>0.6%</strong>. The rate also depends on the number of children under 25.",
+            faq5_a_mid: "Employee contribution rates (except Sachsen):",
+            faq5_0kids: "No children (age 23+)",
+            faq5_1kid: "1 child",
+            faq5_1kid_note: "1.8% (even if the child is older than 24)",
+            faq5_2kids: "2 children",
+            faq5_3kids: "3 children",
+            faq5_4kids: "4 children",
+            faq5_5kids: "5 or more children",
+            faq5_a_end: '<p>Note: In <strong>Sachsen</strong> a special split applies, so the employee share may differ. This calculator approximates Sachsen accordingly.</p>',
+          },
+
+          bg: {
+            page_title: "Калкулатор за заплати в Германия (Brutto → Netto)",
+            site_title: "Калкулатор за заплати в Германия",
+            site_subtitle: "Brutto → Netto с подробна разбивка + подсказки",
+            theme: "Тема",
+            inputs: "Входни данни",
+            inputs_meta: "В реално време \u2022 без регистрация \u2022 само локално",
+            gross_salary: "Брутна заплата",
+            gross_placeholder: "напр. 3500",
+            tip_gross: '<strong>Брутната заплата</strong> е вашата заплата преди данъци и осигуровки. Този калкулатор изчислява <strong>нетната заплата</strong> след типичните германски удръжки.',
+            pay_period: "Период на плащане",
+            tip_period: 'Изберете дали брутната сума е <strong>годишна</strong> или <strong>месечна</strong>. Резултатите показват и двете.',
+            month: "Месец",
+            year: "Година",
+            benefit_label: "Непаричен бонус (месечно)",
+            benefit_placeholder: "напр. 0",
+            tip_benefit: '\u201eGeldwerter Vorteil\u201c (напр. служебен автомобил) увеличава базата за <strong>данък</strong> и <strong>осигуровки</strong>, но обикновено <strong>не се изплаща в брой</strong>. Калкулаторът го третира като добавен месечен брутен компонент за удръжки.',
+            allowance_label: "Годишно данъчно облекчение (Freibetrag)",
+            allowance_placeholder: "напр. 0",
+            tip_allowance: 'Незадължително годишно данъчно облекчение (\u201eSteuerfreibetrag\u201c), което намалява <strong>облагаемия доход</strong>. Ако имате конкретни облекчения (напр. за деца), можете да ги приближите тук.',
+            tax_year_label: "Данъчна година (модел)",
+            tip_tax_year: 'Използва официалната формула по §32a EStG за избраната година. Стойностите могат да се различават от официалното удържане поради много фактори. Всеки модел използва правилните <strong>данъчни зони</strong>, <strong>BBG</strong> и <strong>осигурителни ставки</strong>.',
+            tax_class_label: "Данъчен клас (Steuerklasse)",
+            tip_tax_class: 'Данъчният клас влияе на <strong>удържането</strong> (месечна ведомост). Крайният годишен данък може да се различава. Тук използваме приближение: <strong>I/IV</strong> базов, <strong>II</strong> самотен родител, <strong>III</strong> семейно разделяне, <strong>V/VI</strong> по-високо удържане.',
+            state_label: "Федерална провинция (Bundesland)",
+            tip_state: 'Провинцията има значение основно за <strong>църковния данък</strong> (8% в Bayern/Baden-W\u00fcrttemberg; 9% другаде) и специално разпределение на <strong>осигуровката за грижи</strong> в Sachsen.',
+            children_label: "Деца под 25 г. (PV)",
+            tip_children: 'Вноската на служителя за осигуровка за грижи (PV) зависи от броя деца <strong>под 25 години</strong>. Надбавката за бездетни е <strong>0,6%</strong> (от 23 г.). Ставки (2025/2026, 3,6% общо): без деца 2,4%, 1 дете 1,8%, 2 деца 1,55%, 3 деца 1,3%, 4 деца 1,05%, 5+ деца 0,8%.',
+            age_label: "Вашата възраст",
+            tip_age: 'Използва се само за нюанс в PV: \u201eнадбавката за бездетни\u201c се прилага от <strong>23+ години</strong>.',
+            kinderfreibetrag_label: "Kinderfreibetrag",
+            tip_kinderfreibetrag: 'Изберете \u201eдялове\u201c Kinderfreibetrag на <strong>стъпки от 0,5</strong> (напр. 0,5, 1,0, 1,5, 2,0). Тази стойност не е директно моделирана; за приближение използвайте <strong>Годишно данъчно облекчение (Freibetrag)</strong>.',
+            coverage_label: "Покритие (RV / AV)",
+            tip_coverage: 'Ако сте освободени от задължителна пенсионна (RV) или осигуровка за безработица (AV), можете да ги деактивирате тук.',
+            rv_statutory: "RV: задължително",
+            rv_exempt: "RV: освободен",
+            av_statutory: "AV: задължително",
+            av_exempt: "AV: освободен",
+            church_title: "Църковен данък (Kirchensteuer)",
+            church_desc: "Добавя 8%/9% от данъка върху дохода (ако е приложимо)",
+            tip_church: 'Ако е включен, добавяме църковен данък като процент от данъка върху дохода. (Bayern и Baden-W\u00fcrttemberg: 8%. Всички други провинции: 9%.)',
+            pkv_title: "Частно здравно осигуряване (PKV)",
+            pkv_desc: "При PKV, въведете месечната си премия",
+            tip_pkv: 'Ако сте частно осигурени, задължителните здравни вноски не се прилагат по същия начин. Калкулаторът използва въведената от вас премия вместо формулата за задължително осигуряване.',
+            pkv_premium_label: "Месечна премия PKV",
+            tip_pkv_premium: 'Въведете личната си месечна премия за частно здравно осигуряване (дял на служителя). Пример: 450.',
+            care_estimate_label: "Включване на оценка за осигуровка за грижи",
+            tip_care_estimate: 'Осигуровката за грижи (Pflegeversicherung) съществува и при частно осигуряване, но реалната сума зависи от плана. Ако включите тази опция, използваме същия модел.',
+            care_estimate_option: "С оценка за осигуровка",
+            care_zero_option: "Без включване",
+            zusatz_label: 'Здравна допълнителна вноска (%)',
+            tip_zusatz: 'При задължителното здравно осигуряване служителите обикновено плащат <strong>половината</strong> от \u201eZusatzbeitrag\u201c. Въведете пълния процент и ще приложим половината. Средният Zusatzbeitrag е <strong>2,5%</strong> (2025) и <strong>2,9%</strong> (2026) \u2014 стойността зависи от осигурителя.',
+            results: "Резултати",
+            month_net: "/ месец нето",
+            year_net: "/ година нето",
+            month_incl_benefit: "/ месец с бонус",
+            copy_summary: "Копирай обобщение",
+            copied: "Копирано!",
+            copy_link: "Копирай линк",
+            link_copied: "Линкът е копиран!",
+            reset: "Нулиране",
+            net_pay: "Нетно заплащане (кеш)",
+            benefit_noncash: "Непаричен бонус",
+            income_tax: "Данък върху дохода (ESt) \u2013 оценка",
+            soli: "Солидарна надбавка (Soli) \u2013 оценка",
+            church_tax_line: "Църковен данък (Kirchensteuer)",
+            health_ins: "Здравно осигуряване (KV) \u2013 служител",
+            care_ins: "Осигуровка за грижи (PV) \u2013 служител",
+            pension_ins: "Пенсионно осигуряване (RV) \u2013 служител",
+            unemp_ins: "Осигуровка безработица (AV) \u2013 служител",
+            gross_per_month: "бруто/месец",
+            total_deductions: "общо удръжки",
+            incl_benefit: "вкл.",
+            noncash_benefit_month: "непаричен бонус/месец",
+            summary_title: "Калкулатор за заплати в Германия \u2014 обобщение",
+            footer_note: 'Това е <strong>бърза оценка</strong> (не е софтуер за заплати). За точни резултати използвайте официален калкулатор или се консултирайте с данъчен специалист.',
+            info_title: "Информация \u2013 Бележки и стойности",
+            info_meta: "Практически обяснения (2026) \u2022 компактно \u2022 за мобилни",
+            faq1_q: "Няколко работодатели / Данъчен клас VI",
+            faq1_a: '<p>Данъчен клас <strong>VI</strong> обикновено се прилага, когато имате <strong>няколко дохода</strong> и поне едно допълнително заетост е над <strong>границата за минимална заетост</strong> (напр. > 603\u00a0\u20ac).</p><p>Вашият <strong>данъчен клас</strong> можете да видите във фиша за заплата. Работодателят получава електронните данни (<strong>ELStAM</strong>) от данъчната служба.</p>',
+            faq2_q: "Здравно осигуряване (KV) и Zusatzbeitrag",
+            faq2_a: '<p>Посочените ставки за KV могат да включват дялове на работодателя и служителя. <strong>Zusatzbeitrag</strong> зависи от здравната каса. От 2019 г. работодателите и служителите си делят Zusatzbeitrag поравно.</p><p>Този калкулатор използва <strong>половината на служителя</strong> от въведения Zusatzbeitrag.</p>',
+            faq3_q: "Тавани на осигурителните вноски (BBG) 2026",
+            faq3_a_intro: "Осигурителните вноски се начисляват процентно до тавана на вноските.",
+            faq3_kv_monthly: "Здравно и грижи осигуряване (месечно)",
+            faq3_kv_annual: "Здравно и грижи осигуряване (годишно)",
+            faq3_rv_monthly: "Пенсионно и безработица осигуряване (месечно)",
+            faq3_rv_annual: "Пенсионно и безработица осигуряване (годишно)",
+            faq4_q: "Праг за задължително осигуряване (PKV) 2026",
+            faq4_a: '<p>Над прага за задължително осигуряване служителят може при определени условия да се откаже от задължителното здравно осигуряване и да премине към <strong>частно здравно осигуряване</strong> (PKV). Обикновено доходът трябва да надвишава прага <strong>три последователни години</strong>.</p><p>За 2026 г. прагът е <strong>77\u00a0400\u00a0\u20ac</strong> годишно.</p>',
+            faq5_q: "Осигуровка за грижи (PV) \u2013 дял на служителя",
+            faq5_a_intro: "От 1 януари 2025 г. ставката за осигуровка за грижи е <strong>3,6%</strong> (преди 3,4% от юли 2023). Надбавката за бездетни е <strong>0,6%</strong>. Ставката зависи и от броя деца под 25.",
+            faq5_a_mid: "Ставки за служители (без Sachsen):",
+            faq5_0kids: "Без деца (от 23 г.)",
+            faq5_1kid: "1 дете",
+            faq5_1kid_note: "1,8% (дори ако детето е над 24 г.)",
+            faq5_2kids: "2 деца",
+            faq5_3kids: "3 деца",
+            faq5_4kids: "4 деца",
+            faq5_5kids: "5 или повече деца",
+            faq5_a_end: '<p>Забележка: В <strong>Sachsen</strong> важи специално разпределение, затова делът на служителя може да се различава. Калкулаторът приближава Sachsen съответно.</p>',
+          }
+        };
+
+        let currentLang = "en";
+
+        function t(key) {
+          return I18N[currentLang]?.[key] ?? I18N.en[key] ?? key;
+        }
+
+        function applyLanguage(lang) {
+          currentLang = lang;
+          document.documentElement.lang = lang;
+          localStorage.setItem("gsc_lang", lang);
+          document.title = t("page_title");
+          document.querySelectorAll("[data-i18n]").forEach(function(el) {
+            el.textContent = t(el.dataset.i18n);
+          });
+          document.querySelectorAll("[data-i18n-html]").forEach(function(el) {
+            el.innerHTML = t(el.dataset.i18nHtml);
+          });
+          document.querySelectorAll("[data-i18n-placeholder]").forEach(function(el) {
+            el.placeholder = t(el.dataset.i18nPlaceholder);
+          });
+          if (typeof render === "function") render();
+        }
+
         const $ = (id) => document.getElementById(id);
         const fmtEUR = new Intl.NumberFormat("de-DE", {
           style: "currency",
@@ -1491,6 +1735,7 @@
           copyBtn: $("copyBtn"),
           shareBtn: $("shareBtn"),
           resetBtn: $("resetBtn"),
+          langSelect: $("langSelect"),
         };
 
         // Track if the user intentionally set a value (so model switches don't overwrite it).
@@ -1556,19 +1801,12 @@
         }
 
         function taxClassFactor(taxClass) {
-          // Used for a pragmatic "monthly payroll feel".
-          // - I/IV: baseline
-          // - II: baseline, but with relief modeled separately
-          // - III: married splitting (modeled by splittingFactor)
-          // - V/VI: higher withholding (multiplier)
           if (taxClass === 5) return 1.25;
           if (taxClass === 6) return 1.35;
           return 1.0;
         }
 
         function splittingFactorForTaxClass(taxClass) {
-          // If class III: treat as married splitting.
-          // (This is not how annual reality works across partners, but gives an intuitive estimate.)
           return taxClass === 3 ? 2 : 1;
         }
 
@@ -1595,7 +1833,6 @@
           const pkvPremiumMonthly = parseNum(els.pkvPremium.value);
           const includePkvCare = els.pkvCareMode.value === "estimate";
 
-          // Social contributions (employee) (monthly)
           const s = model.social;
           const baseKV = Math.min(grossMonthly, s.bbg_health_month);
           const baseRV = Math.min(grossMonthly, s.bbg_pension_month);
@@ -1630,7 +1867,6 @@
           const socialMonthly = kv + pv + rv + av;
           const socialAnnual = socialMonthly * 12;
 
-          // Taxable income estimate: gross - employee social - basic allowances
           const a = model.allowances;
           let allowancesAnnual = a.werbungskosten + a.sonderausgaben;
           if (taxClass === 2) allowancesAnnual += a.entlastungsbetrag_II;
@@ -1638,7 +1874,6 @@
 
           const taxableAnnual = Math.max(0, grossAnnual - socialAnnual - allowancesAnnual);
 
-          // Splitting & tax class heuristics
           const splitFactor = splittingFactorForTaxClass(taxClass);
           const taxAnnualBase =
             splitFactor === 2
@@ -1712,7 +1947,8 @@
           return clamp(value / grossAnnual, 0, 1);
         }
 
-        function line(label, valueAnnual, grossAnnual, fillClass = "") {
+        function line(label, valueAnnual, grossAnnual, fillClass) {
+          fillClass = fillClass || "";
           const pct = pctOfGross(valueAnnual, grossAnnual);
           const pctLabel = fmtPct.format(pct);
           const div = document.createElement("div");
@@ -1740,47 +1976,46 @@
           els.headline.textContent = fmtEUR.format(r.monthly.netCash);
           const benefitNote =
             r.inputs.benefitAnnual > 0
-              ? ` • incl. ${fmtEUR.format(r.inputs.benefitMonthly)} non-cash benefit/month`
+              ? ` \u2022 ${t("incl_benefit")} ${fmtEUR.format(r.inputs.benefitMonthly)} ${t("noncash_benefit_month")}`
               : "";
           els.subtitle.textContent = `${fmtEUR.format(
             r.inputs.grossMonthly
-          )} gross/month • ${fmtPct.format(1 - r.annual.netCash / (gA || 1))} total deductions${benefitNote}`;
+          )} ${t("gross_per_month")} \u2022 ${fmtPct.format(1 - r.annual.netCash / (gA || 1))} ${t("total_deductions")}${benefitNote}`;
 
-          els.resultMeta.textContent = `${r.model.label} • ${r.inputs.state} • class ${["", "I", "II", "III", "IV", "V", "VI"][r.inputs.taxClass]}`;
+          els.resultMeta.textContent = `${r.model.label} \u2022 ${r.inputs.state} \u2022 class ${["", "I", "II", "III", "IV", "V", "VI"][r.inputs.taxClass]}`;
           els.versionTag.textContent = `model: ${r.model.label}`;
 
           els.breakdown.replaceChildren();
           els.breakdown.appendChild(
-            line("Net pay (cash)", r.annual.netCash, gA, "green")
+            line(t("net_pay"), r.annual.netCash, gA, "green")
           );
           if (r.inputs.benefitAnnual > 0) {
             els.breakdown.appendChild(
-              line("Benefit in kind (non-cash)", r.inputs.benefitAnnual, gA, "green")
+              line(t("benefit_noncash"), r.inputs.benefitAnnual, gA, "green")
             );
           }
           els.breakdown.appendChild(
-            line("Income tax (ESt) – estimate", r.annual.tax, gA, "amber")
+            line(t("income_tax"), r.annual.tax, gA, "amber")
           );
           els.breakdown.appendChild(
-            line("Solidarity surcharge (Soli) – estimate", r.annual.soli, gA, "")
+            line(t("soli"), r.annual.soli, gA, "")
           );
           els.breakdown.appendChild(
-            line("Church tax (Kirchensteuer)", r.annual.church, gA, "")
+            line(t("church_tax_line"), r.annual.church, gA, "")
           );
           els.breakdown.appendChild(
-            line("Health insurance (KV) – employee", r.annual.kv, gA, "")
+            line(t("health_ins"), r.annual.kv, gA, "")
           );
           els.breakdown.appendChild(
-            line("Care insurance (PV) – employee", r.annual.pv, gA, "")
+            line(t("care_ins"), r.annual.pv, gA, "")
           );
           els.breakdown.appendChild(
-            line("Pension insurance (RV) – employee", r.annual.rv, gA, "")
+            line(t("pension_ins"), r.annual.rv, gA, "")
           );
           els.breakdown.appendChild(
-            line("Unemployment insurance (AV) – employee", r.annual.av, gA, "")
+            line(t("unemp_ins"), r.annual.av, gA, "")
           );
 
-          // Private health: hide zusatz input UX-wise? keep visible but it won't affect kv.
           els.privateRow.hidden = !getSwitch(els.isPrivate);
         }
 
@@ -1806,6 +2041,7 @@
           params.set("pkv", getSwitch(els.isPrivate) ? "1" : "0");
           params.set("pkvPremium", String(parseNum(els.pkvPremium.value)));
           params.set("pkvCare", els.pkvCareMode.value);
+          params.set("lang", currentLang);
           const base =
             location.origin && location.origin !== "null"
               ? `${location.origin}${location.pathname}`
@@ -1841,6 +2077,12 @@
           if (p.has("pkv")) setSwitch(els.isPrivate, p.get("pkv") === "1");
           if (p.has("pkvPremium")) els.pkvPremium.value = String(p.get("pkvPremium") || "450");
           if (p.has("pkvCare")) els.pkvCareMode.value = p.get("pkvCare") || "estimate";
+          if (p.has("lang")) {
+            const langVal = p.get("lang");
+            if (els.langSelect && (langVal === "en" || langVal === "bg")) {
+              els.langSelect.value = langVal;
+            }
+          }
         }
 
         function initTheme() {
@@ -1898,6 +2140,13 @@
             $("calcForm").addEventListener(evt, () => render());
           });
 
+          // Language selector
+          if (els.langSelect) {
+            els.langSelect.addEventListener("change", () => {
+              applyLanguage(els.langSelect.value);
+            });
+          }
+
           // Tooltips: make them work on touch devices
           const positionTip = (wrap) => {
             const tip = wrap?.querySelector?.(".tip");
@@ -1905,7 +2154,6 @@
             if (!tip) return;
             if (!btn) return;
 
-            // Place tooltip within viewport (top/bottom + left/right clamped).
             wrap.classList.add("fixedTip");
             tip.style.left = "";
             tip.style.top = "";
@@ -1919,13 +2167,11 @@
             let left = b.left + b.width / 2 - tr.width / 2;
             left = Math.min(maxLeft, Math.max(pad, left));
 
-            // Prefer above, otherwise below; then clamp.
             const aboveTop = b.top - gap - tr.height;
             const belowTop = b.bottom + gap;
             let top = aboveTop;
             if (aboveTop < pad) top = belowTop;
             if (top + tr.height > window.innerHeight - pad) {
-              // If below overflows, try above; otherwise clamp to top padding.
               if (aboveTop >= pad) top = aboveTop;
               top = Math.min(window.innerHeight - pad - tr.height, Math.max(pad, top));
             }
@@ -1959,16 +2205,13 @@
               wrap.classList.toggle("open", !isOpen);
               btn.setAttribute("aria-expanded", (!isOpen).toString());
               if (!isOpen) {
-                // Measure after it becomes visible.
                 requestAnimationFrame(() => {
                   positionTip(wrap);
-                  // Some mobile browsers settle layout after another frame.
                   requestAnimationFrame(() => positionTip(wrap));
                 });
               }
               return;
             }
-            // Click inside an already-open tooltip shouldn't close it immediately.
             if (e.target.closest?.(".tipWrap")) return;
             closeAllTips();
           });
@@ -1982,7 +2225,6 @@
           els.zusatz.addEventListener("input", () => {
             userTouchedZusatz = true;
           });
-          // Convenience: when switching to 2026, set the typical 2.9% if user hasn't chosen a value.
           els.year.addEventListener("change", () => {
             if (Number(els.year.value) === 2026 && !userTouchedZusatz) {
               els.zusatz.value = "2.9";
@@ -2020,7 +2262,7 @@
           els.copyBtn.addEventListener("click", async () => {
             const r = compute();
             const txt = [
-              "German Salary Calculator — summary",
+              t("summary_title"),
               `Gross (cash): ${fmtEUR.format(r.inputs.cashGrossAnnual)} / year (${fmtEUR.format(
                 r.inputs.cashGrossMonthly
               )} / month)`,
@@ -2053,8 +2295,8 @@
             ].join("\n");
             try {
               await navigator.clipboard.writeText(txt);
-              els.copyBtn.textContent = "Copied!";
-              setTimeout(() => (els.copyBtn.textContent = "Copy summary"), 1200);
+              els.copyBtn.textContent = t("copied");
+              setTimeout(() => (els.copyBtn.textContent = t("copy_summary")), 1200);
             } catch {
               alert("Clipboard not available in this browser context.");
             }
@@ -2064,8 +2306,8 @@
             const url = toShareURL();
             try {
               await navigator.clipboard.writeText(url);
-              els.shareBtn.textContent = "Link copied!";
-              setTimeout(() => (els.shareBtn.textContent = "Copy link"), 1200);
+              els.shareBtn.textContent = t("link_copied");
+              setTimeout(() => (els.shareBtn.textContent = t("copy_link")), 1200);
             } catch {
               prompt("Copy this link:", url);
             }
@@ -2075,7 +2317,15 @@
         initTheme();
         wire();
         applyURLParams();
-        render();
+
+        // Restore language from URL param or localStorage
+        const urlLangParam = new URLSearchParams(location.search).get("lang");
+        const savedLang = localStorage.getItem("gsc_lang");
+        const initLang = (urlLangParam === "en" || urlLangParam === "bg") ? urlLangParam
+          : (savedLang === "en" || savedLang === "bg") ? savedLang
+          : "en";
+        if (els.langSelect) els.langSelect.value = initLang;
+        applyLanguage(initLang);
       })();
     </script>
   </body>
